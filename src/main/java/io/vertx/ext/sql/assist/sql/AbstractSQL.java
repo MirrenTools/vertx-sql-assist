@@ -869,7 +869,7 @@ public abstract class AbstractSQL<T> {
 	}
 
 	/**
-	 * 插入一个对象,指插入对象中值不为null的属性<br>
+	 * 插入一个对象,只插入对象中值不为null的属性<br>
 	 * 
 	 * @param obj
 	 *          对象
@@ -900,7 +900,7 @@ public abstract class AbstractSQL<T> {
 		return result;
 	}
 	/**
-	 * 插入一个对象,指插入对象中值不为null的属性
+	 * 插入一个对象,只插入对象中值不为null的属性
 	 * 
 	 * @param obj
 	 *          对象
@@ -918,7 +918,7 @@ public abstract class AbstractSQL<T> {
 		}, null);
 	}
 	/**
-	 * 插入一个对象,指插入对象中值不为null的属性
+	 * 插入一个对象,只插入对象中值不为null的属性
 	 * 
 	 * @param obj
 	 *          对象
@@ -1413,7 +1413,7 @@ public abstract class AbstractSQL<T> {
 		return result;
 	}
 	/**
-	 * 更新一个对象中属性不为null值,条件为SqlAssist对象条件集
+	 * 更新一个对象中属性不为null值,条件为SqlAssist条件集
 	 * 
 	 * @param obj
 	 *          对象
@@ -1433,7 +1433,7 @@ public abstract class AbstractSQL<T> {
 		}, null);
 	}
 	/**
-	 * 更新一个对象中属性不为null值,条件为SqlAssist对象条件集
+	 * 更新一个对象中属性不为null值,条件为SqlAssist条件集
 	 * 
 	 * @param obj
 	 *          对象
@@ -1581,7 +1581,7 @@ public abstract class AbstractSQL<T> {
 		return result;
 	}
 	/**
-	 * 通过Assist作为条件设置内容为空
+	 * 通过Assist作为条件设置指定的列为空
 	 * 
 	 * @param assist
 	 *          sql帮助工具
@@ -1604,7 +1604,7 @@ public abstract class AbstractSQL<T> {
 		}, null);
 	}
 	/**
-	 * 通过Assist作为条件设置内容为空
+	 * 通过Assist作为条件设置指定的列为空
 	 * 
 	 * @param assist
 	 *          sql帮助工具

@@ -141,7 +141,7 @@ public class SqlAssist {
 	}
 
 	/**
-	 * 添加单个查询条件,参数为{@ SqlWhereCondition},推荐使用SqlWhereCondition的静态条件方法添加条件;
+	 * 添加单个查询条件,参数为{@link SqlWhereCondition} ,推荐使用SqlWhereCondition的静态条件方法添加条件;
 	 * 
 	 * @param require
 	 *          示例:查询等于使用 SqlWhereCondition.andEq("A.ID",10)...
@@ -436,7 +436,7 @@ public class SqlAssist {
 		return this;
 	}
 	/**
-	 * 自定义查询条件 :<br>
+	 * 添加自定义查询条件 :<br>
 	 * 示例: prefix= and id in(select tid from table where w=?) , value=1<br>
 	 * SQL: and id in(select tid from table where w=1)
 	 * 
@@ -590,7 +590,7 @@ public class SqlAssist {
 	}
 
 	/**
-	 * 设置是否去重,true去除,false无效
+	 * 设置是否去重,true去重,false无效
 	 * 
 	 * @param distinct
 	 */
@@ -659,7 +659,7 @@ public class SqlAssist {
 	}
 
 	/**
-	 * 设置每次取多少很数据
+	 * 设置每次取多少行数据
 	 * 
 	 * @param rowSize
 	 */
@@ -678,7 +678,7 @@ public class SqlAssist {
 	}
 
 	/**
-	 * 设置返回指定列多个列以,逗号隔开;
+	 * 设置自定义返回列,多个列以,逗号隔开
 	 * 
 	 * @return
 	 */
@@ -695,7 +695,7 @@ public class SqlAssist {
 		return joinOrReference;
 	}
 	/**
-	 * 设置连接查询或多表查询语句,当optimizePage=true是该属性无效<br>
+	 * 设置连接查询或多表查询语句<br>
 	 * 多表示例: ,table2,table3<br>
 	 * 连接示例: inner join table2 on table1.id=table2.id
 	 * 
