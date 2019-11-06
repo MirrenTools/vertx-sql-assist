@@ -1,13 +1,15 @@
 # vertx-sql-assist
+其他语言版本: [English](./README.en.md), [简体中文](./README.md).
+
 vertx-sql-assist是 [Vert.x](https://vertx.io/) 的SQL操作帮助工具,它提供了增删改查、连接、分页等支持,配合SqlAssist帮助类自己基本不用写一行SQL代码。
 
 我们推荐你使用 [ScrewDriver](https://github.com/MirrenTools/screw-driver) 来生成代码,这样你会发现世界非常美好!
 ## 添加依赖
 ``` XML
 <dependency>
-    <groupId>org.mirrentools</groupId>
-    <artifactId>vertx-sql-assist</artifactId>
-    <version>1.0.0</version>
+  <groupId>org.mirrentools</groupId>
+  <artifactId>vertx-sql-assist</artifactId>
+  <version>1.0.0</version>
 </dependency>
 ```
 ## SQL类方法说明
@@ -97,42 +99,42 @@ itemsDao.selectAll(assist,future);
 
 ``` java
 public class User {
-	private Long id;
-	private String name;
-	private Integer type;
-	//其他必须的
-}	
+  private Long id;
+  private String name;
+  private Integer type;
+  //其他必须的
+}  
 ```
 2.创建SQL类
 
 ``` java
 public class UserSQL extends MySQL<User> {
-	@Override
-	protected String tableName() {
-		return "user";
-	}
-	//实现其他的方法
-}	
+  @Override
+  protected String tableName() {
+    return "user";
+  }
+  //实现其他的方法
+}  
 ```
 3.执行
 
 ``` java
 public static void main(String[] args) {
-	// 其他已省略的变量
-	UserSQL userSQL = new UserSQL(jdbcClient);
-	// 创建帮助类
-	SqlAssist assist = new SqlAssist();
-	assist.setStartRow(0).setRowSize(15);
-	assist.andEq("type", 1);
-	assist.setOrders(SqlAssist.order("id", true));
-	// 执行查询
-	userSQL.selectAll(assist,res->{
-		if (res.succeeded()) {
-			System.out.println(res.result());
-		}else {
-			System.err.println(res.cause());
-		}
-	});
+  // 其他已省略的变量
+  UserSQL userSQL = new UserSQL(jdbcClient);
+  // 创建帮助类
+  SqlAssist assist = new SqlAssist();
+  assist.setStartRow(0).setRowSize(15);
+  assist.andEq("type", 1);
+  assist.setOrders(SqlAssist.order("id", true));
+  // 执行查询
+  userSQL.selectAll(assist,res->{
+    if (res.succeeded()) {
+      System.out.println(res.result());
+    }else {
+      System.err.println(res.cause());
+    }
+  });
 }
 ```
 
