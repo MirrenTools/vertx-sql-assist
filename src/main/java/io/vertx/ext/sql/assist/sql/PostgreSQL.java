@@ -1,7 +1,7 @@
 package io.vertx.ext.sql.assist.sql;
 
 /**
- * SQLite版实现
+ * SQLite通用SQL操作
  * 
  * @author <a href="http://szmirren.com">Mirren</a>
  *

@@ -362,6 +362,15 @@ public abstract class AbstractSQL<T> {
 			if (assist.getGroupBy() != null) {
 				sql.append(" group by " + assist.getGroupBy() + " ");
 			}
+			if (assist.getHaving() != null) {
+				sql.append(" having " + assist.getHaving() + " ");
+				if (assist.getHavingValue() != null) {
+					if (params == null) {
+						params = new JsonArray();
+					}
+					params.addAll(assist.getHavingValue());
+				}
+			}
 			if (assist.getOrder() != null) {
 				sql.append(assist.getOrder());
 			}

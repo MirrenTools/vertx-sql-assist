@@ -1,4 +1,4 @@
-package io.vertx.ext.sql.assist.mysql;
+package io.vertx.ext.sql.assist.oracle;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,9 +8,9 @@ import io.vertx.ext.sql.assist.SqlAndParams;
 import io.vertx.ext.sql.assist.SqlAssist;
 import io.vertx.ext.sql.assist.SqlPropertyValue;
 import io.vertx.ext.sql.assist.User;
-import io.vertx.ext.sql.assist.sql.MySQL;
+import io.vertx.ext.sql.assist.sql.Oracle;
 
-public class UserSQL extends MySQL<User> {
+public class TestSQL extends Oracle<User> {
 	@Override
 	protected String tableName() {
 		return "user";

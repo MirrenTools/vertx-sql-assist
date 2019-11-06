@@ -15,10 +15,14 @@ import io.vertx.core.json.JsonObject;
 public class SqlAssist {
 	/** 去重 */
 	private String distinct;
-	/** 排序 */
-	private String order;
 	/** 分组 */
 	private String groupBy;
+	/** 分组条件 */
+	private String having;
+	/** 分组条件值 */
+	private JsonArray havingValue;
+	/** 排序 */
+	private String order;
 	/** 数据分页第几页 */
 	private Integer page;
 	/** 数据分页开始行 */
@@ -66,11 +70,17 @@ public class SqlAssist {
 		if (distinct != null) {
 			json.put("distinct", distinct);
 		}
-		if (order != null) {
-			json.put("order", order);
-		}
 		if (groupBy != null) {
 			json.put("groupBy", groupBy);
+		}
+		if (having != null) {
+			json.put("having", having);
+		}
+		if (havingValue != null) {
+			json.put("havingValue", havingValue);
+		}
+		if (order != null) {
+			json.put("order", order);
 		}
 		if (page != null) {
 			json.put("page", page);
@@ -110,10 +120,12 @@ public class SqlAssist {
 			return null;
 		}
 		SqlAssist assist = new SqlAssist();
+		assist.setPage(obj.getInteger("page"));
 		assist.setStartRow(obj.getInteger("startRow"));
-		assist.setRowSize(obj.getInteger("page"));
 		assist.setRowSize(obj.getInteger("rowSize"));
 		assist.setDistinct(obj.getString("distinct"));
+		assist.setGroupBy(obj.getString("groupBy"));
+		assist.setHaving(obj.getString("having"), obj.getJsonArray("havingValue"));
 		assist.setOrders(obj.getString("order"));
 		assist.setResultColumn(obj.getString("resultColumn"));
 		assist.setJoinOrReference(obj.getString("joinOrReference"));
@@ -524,16 +536,50 @@ public class SqlAssist {
 		return groupBy;
 	}
 	/**
-	 * 设置分组 示例传入: id,type<br> 
+	 * 设置分组 示例传入: id,type<br>
 	 * SQL: GROUP BY id,type
+	 * 
 	 * @param groupBy
+	 *          要分组的列名比如id,type
 	 * @return
 	 */
 	public SqlAssist setGroupBy(String groupBy) {
 		this.groupBy = groupBy;
 		return this;
 	}
+	/**
+	 * 获取分组条件
+	 * 
+	 * @return
+	 */
+	public String getHaving() {
+		return having;
+	}
 
+	/**
+	 * 设置分组条件<br>
+	 * 示例: having= id > ? and type=? values=[1,2]<br>
+	 * SQL: having id>1 and type=2
+	 * 
+	 * @param having
+	 *          表达式,值以?号占位,示例: id > ? and type=?
+	 * @param values
+	 *          传入值 new JsonArray().add(1).add(2)
+	 * @return
+	 */
+	public SqlAssist setHaving(String having, JsonArray values) {
+		this.having = having;
+		this.havingValue = values;
+		return this;
+	}
+	/**
+	 * 获取Having的值
+	 * 
+	 * @return
+	 */
+	public JsonArray getHavingValue() {
+		return havingValue;
+	}
 	/**
 	 * 获得是否去重
 	 * 
@@ -583,7 +629,7 @@ public class SqlAssist {
 		return page;
 	}
 	/**
-	 * 设置第几页,该数值同城会被转换为startRow
+	 * 设置第几页,该值仅在limitAll方法中有效,最终会被转换为startRow
 	 * 
 	 * @param page
 	 * @return
@@ -693,5 +739,4 @@ public class SqlAssist {
 		return "SqlAssist [distinct=" + distinct + ", order=" + order + ", startRow=" + startRow + ", rowSize=" + rowSize + ", resultColumn="
 				+ resultColumn + ", condition=" + condition + ", custom=" + custom + "]";
 	}
-
 }

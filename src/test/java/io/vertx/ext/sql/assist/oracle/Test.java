@@ -1,15 +1,15 @@
-package io.vertx.ext.sql.assist.mysql;
+package io.vertx.ext.sql.assist.oracle;
 
 import io.vertx.ext.sql.assist.SqlAndParams;
 import io.vertx.ext.sql.assist.SqlAssist;
 import io.vertx.ext.sql.assist.User;
 
-public class MySQLTest {
+public class Test {
 	public static void main(String[] args) {
-		UserSQL sql = new UserSQL();
+		TestSQL sql = new TestSQL();
 		SqlAssist assist = new SqlAssist().andEq("id", 1L);
 		assist.setOrders(SqlAssist.order("id", true));
-		assist.setGroupBy("name");
+		assist.setStartRow(1).setRowSize(15);
 		User user = new User();
 		user.setId(1L);
 		user.setName("name");
