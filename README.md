@@ -122,6 +122,7 @@ public class UserSQL extends MySQL<User> {
 public static void main(String[] args) {
   // 其他已省略的变量
   UserSQL userSQL = new UserSQL(jdbcClient);
+  //查询示例
   // 创建帮助类
   SqlAssist assist = new SqlAssist();
   assist.setStartRow(0).setRowSize(15);
@@ -135,6 +136,12 @@ public static void main(String[] args) {
       System.err.println(res.cause());
     }
   });
+  //保存示例
+  User user =new User();
+  user.setId(1001L);
+  user.setName("org.mirrentools");
+  user.setType(1);
+  userSQL.insertNonEmpty(user,res->{//Processed results});
 }
 ```
 

@@ -85,7 +85,7 @@ assist.setOrders(SqlAssist.order("seq", false));
 assist.setStartRow(20).setRowSize(15);
 // (7)Execute get data
 Future future=Promise.promise().future();
-future.setHandler(//处理结果);
+future.setHandler(//Processed results);
 itemsDao.selectAll(assist,future);
 ```
 For more help, see the method notes for SqlAssist class
@@ -124,6 +124,7 @@ public class UserSQL extends MySQL<User> {
 public static void main(String[] args) {
   // Other necessary
   UserSQL userSQL = new UserSQL(jdbcClient);
+  // Query Example
   // Create SqlAssist
   SqlAssist assist = new SqlAssist();
   assist.setStartRow(0).setRowSize(15);
@@ -137,6 +138,13 @@ public static void main(String[] args) {
       System.err.println(res.cause());
     }
   });
+  //Save Example
+  User user =new User();
+  user.setId(1001L);
+  user.setName("org.mirrentools");
+  user.setType(1);
+  userSQL.insertNonEmpty(user,res->{//Processed results});
+  
 }
 ```
 
