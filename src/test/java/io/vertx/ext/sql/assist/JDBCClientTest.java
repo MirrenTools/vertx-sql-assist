@@ -3,7 +3,6 @@ package io.vertx.ext.sql.assist;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.jdbc.JDBCClient;
-import io.vertx.ext.sql.assist.SQLExecuteJDBCImpl;
 import io.vertx.ext.sql.assist.sql.OracleStatementSQL;
 
 public class JDBCClientTest {

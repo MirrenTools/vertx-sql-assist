@@ -44,7 +44,6 @@ public interface SQLExecute<T> {
 	static SQLExecute<PgPool> create(PgPool client) {
 		return new SQLExecutePgImpl(client);
 	}
-
 	/**
 	 * 获取客户端
 	 * 
