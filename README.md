@@ -86,7 +86,7 @@ assist.setStartRow(20).setRowSize(15);
 // (7)Execute get data
 Future future=Promise.promise().future();
 future.setHandler(//Processed results);
-itemsDao.selectAll(assist,future);
+itemsSQL.selectAll(assist,future);
 ```
 For more help, see the method notes for SqlAssist class
 
@@ -100,21 +100,26 @@ For more help, see the method notes for SqlAssist class
 1.Create entity class
 
 ``` java
+@Table("table name")
 public class User {
+  @TableId("primary key")
   private Long id;
+  @TableColumn("column name")
   private String name;
+  @TableColumn(value = "column name", alias = "column name,is not required")
   private Integer type;
   //Other necessary
 }  
 ```
-2.Create SQL class
+2.Create SQL class and  extends CommonSQL
 
 ``` java
-public class UserSQL extends MySQL<User> {
-  @Override
-  protected String tableName() {
-    return "user";
-  }
+public class UserSQL extends MySQL<JDBCClient> {//(1)
+	public UserSQL(SQLExecute<JDBCClient> execute) {
+		super(User.class, execute);//(2)
+	}
+  //(1)JDBCClient can be another database client
+  //(2)The first parameter must be an entity class annotation with @Table, @TableId, @TableColumn
   //Override other methods
 }  
 ```
@@ -123,7 +128,9 @@ public class UserSQL extends MySQL<User> {
 ``` java
 public static void main(String[] args) {
   // Other necessary
-  UserSQL userSQL = new UserSQL(jdbcClient);
+  // SQL statement uses MySQL standard statement by default,You can set different database SQL statements through SQLStatement,support : MySQL、PostgreSQL、Oracle、DB2、SQL Server、SQLite,For example, if you set it to Oracle, you can:
+  // SQLStatement.register(OracleStatementSQL.class);
+  UserSQL userSQL = new UserSQL(SQLExecute.create(jdbcClient));
   // Query Example
   // Create SqlAssist
   SqlAssist assist = new SqlAssist();

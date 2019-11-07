@@ -7,6 +7,10 @@ package io.vertx.ext.sql.assist.sql;
  *
  * @param <T>
  */
-public abstract class MySQL<T> extends AbstractSQL<T> {
+public class MySQLStatementSQL extends AbstractStatementSQL {
+
+	public MySQLStatementSQL(Class<?> entity) {
+		super(entity);
+	}
 
 }

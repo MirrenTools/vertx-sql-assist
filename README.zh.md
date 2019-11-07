@@ -84,35 +84,39 @@ assist.setStartRow(20).setRowSize(15);
 // (7)执行获取数据
 Future future=Promise.promise().future();
 future.setHandler(//处理结果);
-itemsDao.selectAll(assist,future);
+itemsSQL.selectAll(assist,future);
 ```
 具体使用方式可以查看SqlAssist类的方法注释,如果不清楚的可以在ScrewDriver群里咨询
 
 
 ## 使用方法
-1. 创建一个类,并集成AbstractSQL对应的子类,比如MySQL
-- 实现tableName(), primaryId(),columns(),propertyValue(T),jdbcClient()方法,使用[ScrewDriver](https://github.com/MirrenTools/screw-driver)生成则不需要自己实现
 
 **示例**
 
 1.创建实体类
 
 ``` java
+//添加表注释
+@Table("表的名称")
 public class User {
+  @TableId("主键id")
   private Long id;
+  @TableColumn("列的名称")
   private String name;
+  @TableColumn(value = "列的名称", alias = "列的别名,不是必须")
   private Integer type;
   //其他必须的
 }  
 ```
-2.创建SQL类
+2.创建SQL类并继承CommonSQL
 
 ``` java
-public class UserSQL extends MySQL<User> {
-  @Override
-  protected String tableName() {
-    return "user";
-  }
+public class UserSQL extends MySQL<JDBCClient> {//(1)
+	public UserSQL(SQLExecute<JDBCClient> execute) {
+		super(User.class, execute);//(2)
+	}
+  //(1)JDBCClient 可以是别的数据库客户端
+  //(2)super 第一个参数必须是有@Table, @TableId,@TableColumn注解的实体类
   //实现其他的方法
 }  
 ```
@@ -121,8 +125,10 @@ public class UserSQL extends MySQL<User> {
 ``` java
 public static void main(String[] args) {
   // 其他已省略的变量
-  UserSQL userSQL = new UserSQL(jdbcClient);
-  //查询示例
+  // 默认使用MySQL标准的SQL语句,你可以通过SQLStatement设置为不同的数据库SQL语句,支持MySQL、PostgreSQL、Oracle、DB2、SQL Server、SQLite,比如设置为Oracle你可以这样
+  // SQLStatement.register(OracleStatementSQL.class);
+  UserSQL userSQL = new UserSQL(SQLExecute.create(jdbcClient));
+  // 查询示例
   // 创建帮助类
   SqlAssist assist = new SqlAssist();
   assist.setStartRow(0).setRowSize(15);

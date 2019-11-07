@@ -5,8 +5,11 @@ package io.vertx.ext.sql.assist.sql;
  * 
  * @author <a href="http://szmirren.com">Mirren</a>
  *
- * @param <T>
  */
-public abstract class PostgreSQL<T> extends AbstractSQL<T> {
-	
+public class SQLiteStatementSQL extends AbstractStatementSQL {
+
+	public SQLiteStatementSQL(Class<?> entity) {
+		super(entity);
+	}
+
 }

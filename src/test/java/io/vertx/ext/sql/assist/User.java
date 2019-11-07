@@ -1,13 +1,16 @@
 package io.vertx.ext.sql.assist;
-
+@Table("user")
 public class User {
 	/** 用户的id */
+	@TableId("id")
 	private Long id;
 	/** 用户的名字 */
+	@TableColumn("name")
 	private String name;
 	/** 用户的的密码 */
+	@TableColumn(value = "pwd", alias = "possword")
 	private String pwd;
-	
+
 	public Long getId() {
 		return id;
 	}

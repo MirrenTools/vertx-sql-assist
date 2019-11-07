@@ -7,6 +7,10 @@ package io.vertx.ext.sql.assist.sql;
  *
  * @param <T>
  */
-public abstract class SQLite<T> extends AbstractSQL<T> {
+public class PostgreSQLStatementSQL extends AbstractStatementSQL {
+
+	public PostgreSQLStatementSQL(Class<?> entity) {
+		super(entity);
+	}
 
 }
