@@ -11,26 +11,30 @@ import io.vertx.ext.sql.assist.SqlPropertyValue;
 import io.vertx.ext.sql.assist.SqlWhereCondition;
 
 /**
- * DB2通用SQL操作
+ * Oracle通用SQL操作
  * 
  * @author <a href="http://szmirren.com">Mirren</a>
  *
  * @param <T>
  */
-public abstract class DB2<T> extends AbstractSQL<T> {
+public class OracleStatementSQL extends AbstractStatementSQL {
+	public OracleStatementSQL(Class<?> entity) {
+		super(entity);
+	}
+
 	/** 日志工具 */
-	private final Logger LOG = LoggerFactory.getLogger(DB2.class);
+	private final Logger LOG = LoggerFactory.getLogger(OracleStatementSQL.class);
 
 	@Override
-	protected SqlAndParams selectAllSQL(SqlAssist assist) {
+	public SqlAndParams selectAllSQL(SqlAssist assist) {
 		if (assist != null && assist.getRowSize() != null) {
 			String distinct = assist.getDistinct() == null ? "" : assist.getDistinct();// 去重语句
-			String column = assist.getResultColumn() == null ? columns() : assist.getResultColumn();// 表的列名
+			String column = assist.getResultColumn() == null ? getSqlResultColumns() : assist.getResultColumn();// 表的列名
 			StringBuilder sql = new StringBuilder();
 			// SQL语句添加分页
-			sql.append("select * from ( select temp_table.*, rownumber () over () as tt_row_index from (");
+			sql.append("select * from ( select temp_table.*, ROWNUM AS tt_row_index from (");
 			// SQL语句主查询
-			sql.append(String.format("select %s %s from %s", distinct, column, tableName()));
+			sql.append(String.format("select %s %s from %s", distinct, column, getSqlTableName()));
 			JsonArray params = null;// 参数
 			if (assist.getJoinOrReference() != null) {
 				sql.append(assist.getJoinOrReference());
@@ -75,14 +79,14 @@ public abstract class DB2<T> extends AbstractSQL<T> {
 				sql.append(assist.getOrder());
 			}
 			// SQL分页语句添加别名与结尾
-			sql.append(") AS temp_table ) AS tt_result_table ");
-			sql.append(" where tt_result_table.tt_row_index between ? and ? ");
+			sql.append(") temp_table  where ROWNUM <= ? ) tt_result_table ");
+			sql.append(" where tt_result_table.tt_row_index >= ? ");
 			if (params == null) {
 				params = new JsonArray();
 			}
 			int startRow = assist.getStartRow() == null ? 0 : assist.getStartRow();
-			params.add(startRow);
 			params.add(startRow + assist.getRowSize());
+			params.add(startRow);
 			SqlAndParams result = new SqlAndParams(sql.toString(), params);
 			if (LOG.isDebugEnabled()) {
 				LOG.debug("SelectAllSQL : " + result.toString());
@@ -94,12 +98,20 @@ public abstract class DB2<T> extends AbstractSQL<T> {
 	}
 
 	@Override
-	protected SqlAndParams selectByObjSQL(T obj, String resultColumns, String joinOrReference, boolean single) {
-		StringBuilder sql = new StringBuilder(String.format("select %s from %s %s ", (resultColumns == null ? columns() : resultColumns),
-				tableName(), (joinOrReference == null ? "" : joinOrReference)));
+	public <T> SqlAndParams selectByObjSQL(T obj, String resultColumns, String joinOrReference, boolean single) {
+		StringBuilder sql = new StringBuilder(
+				String.format("select %s from %s %s ", (resultColumns == null ? getSqlResultColumns() : resultColumns), getSqlTableName(),
+						(joinOrReference == null ? "" : joinOrReference)));
 		JsonArray params = null;
 		boolean isFrist = true;
-		for (SqlPropertyValue<?> pv : propertyValue(obj)) {
+		List<SqlPropertyValue<?>> propertyValue;
+		try {
+			propertyValue = getPropertyValue(obj);
+		} catch (Exception e) {
+			return new SqlAndParams(false, " Get SqlPropertyValue failed: " + e.getMessage());
+		}
+		for (int i = propertyValue.size() - 1; i >= 0; i--) {
+			SqlPropertyValue<?> pv = propertyValue.get(i);
 			if (pv.getValue() != null) {
 				if (isFrist) {
 					params = new JsonArray();
@@ -113,7 +125,10 @@ public abstract class DB2<T> extends AbstractSQL<T> {
 			}
 		}
 		if (single) {
-			sql.append(" FETCH FIRST 1 ROWS ONLY ");
+			if (!isFrist) {
+				sql.append(" and ");
+			}
+			sql.append(" rownum <=1 ");
 		}
 		SqlAndParams result = new SqlAndParams(sql.toString(), params);
 		if (LOG.isDebugEnabled()) {

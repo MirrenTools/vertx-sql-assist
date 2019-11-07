@@ -11,47 +11,30 @@ import io.vertx.ext.sql.assist.SqlPropertyValue;
 import io.vertx.ext.sql.assist.SqlWhereCondition;
 
 /**
- * SQL Server通用SQL操作
+ * DB2通用SQL操作
  * 
  * @author <a href="http://szmirren.com">Mirren</a>
  *
  * @param <T>
  */
-public abstract class SqlServer<T> extends AbstractSQL<T> {
-	/** 日志工具 */
-	private final Logger LOG = LoggerFactory.getLogger(SqlServer.class);
-	/**
-	 * 分页的排序,子类可以重写该方法
-	 * 
-	 * @return
-	 */
-
-	/**
-	 * 分页时指定排序的SQL语句,默认排序主键,子类可以重写该方法排序其他的列<br>
-	 * tips:当assist.getOrder()不为空时则该方法无效
-	 * 
-	 * @param cols
-	 * @return
-	 */
-	protected String getRowNumberOverSQL(String cols) {
-		return " order by " + cols + " ";
+public class DB2StatementSQL extends AbstractStatementSQL {
+	public DB2StatementSQL(Class<?> entity) {
+		super(entity);
 	}
 
+	/** 日志工具 */
+	private final Logger LOG = LoggerFactory.getLogger(DB2StatementSQL.class);
+
 	@Override
-	protected SqlAndParams selectAllSQL(SqlAssist assist) {
+	public SqlAndParams selectAllSQL(SqlAssist assist) {
 		if (assist != null && assist.getRowSize() != null) {
 			String distinct = assist.getDistinct() == null ? "" : assist.getDistinct();// 去重语句
-			String column = assist.getResultColumn() == null ? columns() : assist.getResultColumn();// 表的列名
+			String column = assist.getResultColumn() == null ? getSqlResultColumns() : assist.getResultColumn();// 表的列名
 			StringBuilder sql = new StringBuilder();
 			// SQL语句添加分页
-			sql.append("select * from ( ");
-			sql.append(String.format("select %s %s,row_number() over(", distinct, column));
-			if (assist.getOrder() != null) {
-				sql.append(assist.getOrder());
-			} else {
-				sql.append(getRowNumberOverSQL(primaryId()));
-			}
-			sql.append(String.format(") AS tt_row_index from %s ", tableName()));
+			sql.append("select * from ( select temp_table.*, rownumber () over () as tt_row_index from (");
+			// SQL语句主查询
+			sql.append(String.format("select %s %s from %s", distinct, column, getSqlTableName()));
 			JsonArray params = null;// 参数
 			if (assist.getJoinOrReference() != null) {
 				sql.append(assist.getJoinOrReference());
@@ -92,9 +75,12 @@ public abstract class SqlServer<T> extends AbstractSQL<T> {
 					params.addAll(assist.getHavingValue());
 				}
 			}
+			if (assist.getOrder() != null) {
+				sql.append(assist.getOrder());
+			}
 			// SQL分页语句添加别名与结尾
-			sql.append(" ) AS tt_result_table ");
-			sql.append(" where tt_row_index > ? and tt_row_index <= ? ");
+			sql.append(") AS temp_table ) AS tt_result_table ");
+			sql.append(" where tt_result_table.tt_row_index between ? and ? ");
 			if (params == null) {
 				params = new JsonArray();
 			}
@@ -112,12 +98,20 @@ public abstract class SqlServer<T> extends AbstractSQL<T> {
 	}
 
 	@Override
-	protected SqlAndParams selectByObjSQL(T obj, String resultColumns, String joinOrReference, boolean single) {
-		StringBuilder sql = new StringBuilder(String.format("select %s %s from %s %s ", (single ? "top 1" : ""),
-				(resultColumns == null ? columns() : resultColumns), tableName(), (joinOrReference == null ? "" : joinOrReference)));
+	public <T> SqlAndParams selectByObjSQL(T obj, String resultColumns, String joinOrReference, boolean single) {
+		StringBuilder sql = new StringBuilder(
+				String.format("select %s from %s %s ", (resultColumns == null ? getSqlResultColumns() : resultColumns), getSqlTableName(),
+						(joinOrReference == null ? "" : joinOrReference)));
 		JsonArray params = null;
 		boolean isFrist = true;
-		for (SqlPropertyValue<?> pv : propertyValue(obj)) {
+		List<SqlPropertyValue<?>> propertyValue;
+		try {
+			propertyValue = getPropertyValue(obj);
+		} catch (Exception e) {
+			return new SqlAndParams(false, " Get SqlPropertyValue failed: " + e.getMessage());
+		}
+		for (int i = propertyValue.size() - 1; i >= 0; i--) {
+			SqlPropertyValue<?> pv = propertyValue.get(i);
 			if (pv.getValue() != null) {
 				if (isFrist) {
 					params = new JsonArray();
@@ -129,6 +123,9 @@ public abstract class SqlServer<T> extends AbstractSQL<T> {
 					params.add(pv.getValue());
 				}
 			}
+		}
+		if (single) {
+			sql.append(" FETCH FIRST 1 ROWS ONLY ");
 		}
 		SqlAndParams result = new SqlAndParams(sql.toString(), params);
 		if (LOG.isDebugEnabled()) {
