@@ -92,8 +92,6 @@ For more help, see the method notes for SqlAssist class
 
 
 ## How use it?
-1. Create java class and  extends  AbstractSQL Subclass , such as MySQL
-- Override tableName(), primaryId(),columns(),propertyValue(T),jdbcClient() methods, use [ScrewDriver](https://github.com/MirrenTools/screw-driver) generation code does not need to be implemented by yourself
 
 **Example**
 
