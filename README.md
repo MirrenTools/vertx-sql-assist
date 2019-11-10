@@ -11,7 +11,7 @@ To use vertx-sql-assist, add the following dependency to the dependencies sectio
 <dependency>
   <groupId>org.mirrentools</groupId>
   <artifactId>vertx-sql-assist</artifactId>
-  <version>1.0.0</version>
+  <version>1.0.1</version>
 </dependency>
 ```
 ## SQL class method description
@@ -126,9 +126,7 @@ public class UserSQL extends MySQL<JDBCClient> {//(1)
 ``` java
 public static void main(String[] args) {
   // Other necessary
-  // SQL statement uses MySQL standard statement by default,You can set different database SQL statements through SQLStatement,support : MySQL、PostgreSQL、Oracle、DB2、SQL Server、SQLite,For example, if you set it to Oracle, you can:
-  // SQLStatement.register(OracleStatementSQL.class);
-  UserSQL userSQL = new UserSQL(SQLExecute.create(jdbcClient));
+  UserSQL userSQL = new UserSQL(SQLExecute.createJDBC(jdbcClient));
   // Query Example
   // Create SqlAssist
   SqlAssist assist = new SqlAssist();
@@ -152,4 +150,12 @@ public static void main(String[] args) {
   
 }
 ```
-
+## common setting
+**Set different database SQL statements** SQL statement uses MySQL standard statement by default,You can set different database SQL statements through SQLStatement,support : MySQL、PostgreSQL、Oracle、DB2、SQL Server、SQLite,For example, if you set it to Oracle, you can:
+``` java
+SQLStatement.register(OracleStatementSQL.class);
+```
+**Set limit data return result name** The default value of data return result name is:totals=Total data rows,pages=Total data pages ,page=Current page number,size=How many rows of data are displayed per page,data=Result data,If you want to change the data result name to something else, you can:
+``` java
+SqlLimitResult.registerResultKey("totals", "counts");
+```

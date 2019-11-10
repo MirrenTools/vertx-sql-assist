@@ -9,7 +9,7 @@ vertx-sql-assist是 [Vert.x](https://vertx.io/) 的SQL操作帮助工具,它提�
 <dependency>
   <groupId>org.mirrentools</groupId>
   <artifactId>vertx-sql-assist</artifactId>
-  <version>1.0.0</version>
+  <version>1.0.1</version>
 </dependency>
 ```
 ## SQL类方法说明
@@ -18,7 +18,7 @@ vertx-sql-assist是 [Vert.x](https://vertx.io/) 的SQL操作帮助工具,它提�
 * **limitAll** 分页查询
 * **selectById** 通过id查询数据
 * **selectByObj** 通过对象中不为空的属性查询数据
-* **selectSingleByObj** 通过对象中不为空的属性查询数据支取返回的第一行数据
+* **selectSingleByObj** 通过对象中不为空的属性查询数据只取返回的第一行数据
 * **insertBatch** 批量添加插入对象
 * **insertAll** 插入一个对象包括属性值为null的值
 * **insertNonEmpty** 插入一个对象,只插入对象中值不为null的属性
@@ -125,9 +125,7 @@ public class UserSQL extends MySQL<JDBCClient> {//(1)
 ``` java
 public static void main(String[] args) {
   // 其他已省略的变量
-  // 默认使用MySQL标准的SQL语句,你可以通过SQLStatement设置为不同的数据库SQL语句,支持MySQL、PostgreSQL、Oracle、DB2、SQL Server、SQLite,比如设置为Oracle你可以这样
-  // SQLStatement.register(OracleStatementSQL.class);
-  UserSQL userSQL = new UserSQL(SQLExecute.create(jdbcClient));
+  UserSQL userSQL = new UserSQL(SQLExecute.createJDBC(jdbcClient));
   // 查询示例
   // 创建帮助类
   SqlAssist assist = new SqlAssist();
@@ -150,4 +148,12 @@ public static void main(String[] args) {
   userSQL.insertNonEmpty(user,res->{//Processed results});
 }
 ```
-
+## 通用设置
+**设置不同数据库SQL语句** 默认使用MySQL标准的SQL语句,你可以通过SQLStatement设置为不同的数据库SQL语句,支持MySQL、PostgreSQL、Oracle、DB2、SQL Server、SQLite,比如设置为Oracle你可以这样:
+``` java
+SQLStatement.register(OracleStatementSQL.class);
+```
+**设置分页返回结果名称** 分页获取数据返回的名称默认为:totals=数据总行数,pages=数据总页数 ,page=当前是第几页,size=每页显示多少行数据,data=数据,如果你要将名称改为其他的你可以这样:
+``` java
+SqlLimitResult.registerResultKey("totals", "counts");
+```

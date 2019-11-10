@@ -1,6 +1,9 @@
 package io.vertx.ext.sql.assist;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
@@ -12,6 +15,36 @@ import io.vertx.core.json.JsonObject;
  *
  */
 public class SqlLimitResult<T> {
+	/** 分页返回结果键名称的map */
+	private static final Map<String, String> JSON_NAME_KEY_MAPS = new HashMap<>();
+	static {
+		JSON_NAME_KEY_MAPS.put("totals", "totals");
+		JSON_NAME_KEY_MAPS.put("pages", "pages");
+		JSON_NAME_KEY_MAPS.put("page", "page");
+		JSON_NAME_KEY_MAPS.put("size", "size");
+		JSON_NAME_KEY_MAPS.put("data", "data");
+	}
+
+	/**
+	 * 设置返回结果数据键的名称
+	 * 
+	 * @param oldName
+	 *          totals=数据总行数<br>
+	 *          pages=数据总页数 <br>
+	 *          page=当前是第几页<br>
+	 *          size=每页显示多少行数据<br>
+	 *          data=数据
+	 * @param newName
+	 *          新的名称
+	 */
+	public static void registerResultKey(String oldName, String newName) {
+		if (JSON_NAME_KEY_MAPS.get(oldName) == null) {
+			throw new IllegalArgumentException("Failed to return result name, invalid old name, only totals、pages、page、size、data are supported");
+		}
+		Objects.requireNonNull(newName, "Failed to set return result name, new name can not be null");
+		JSON_NAME_KEY_MAPS.put(oldName, newName);
+	}
+
 	/** 数据总行数 */
 	private long totals;
 	/** 数据总页数 */
@@ -22,6 +55,7 @@ public class SqlLimitResult<T> {
 	private int size;
 	/** 数据 */
 	private List<T> data;
+
 	/**
 	 * 初始化
 	 * 
@@ -51,14 +85,15 @@ public class SqlLimitResult<T> {
 	 */
 	public JsonObject toJson() {
 		JsonObject result = new JsonObject();
-		result.put("totals", getTotals());
-		result.put("pages", getPages());
-		result.put("page", getPage());
-		result.put("size", getSize());
+		result.put(JSON_NAME_KEY_MAPS.getOrDefault("totals", "totals"), getTotals());
+		result.put(JSON_NAME_KEY_MAPS.getOrDefault("pages", "pages"), getPages());
+		result.put(JSON_NAME_KEY_MAPS.getOrDefault("page", "page"), getPage());
+		result.put(JSON_NAME_KEY_MAPS.getOrDefault("size", "size"), getSize());
+		String dataKey = JSON_NAME_KEY_MAPS.getOrDefault("data", "data");
 		if (getData() == null) {
-			result.put("data", new JsonArray());
+			result.put(dataKey, new JsonArray());
 		} else {
-			result.put("data", getData());
+			result.put(dataKey, getData());
 		}
 		return result;
 	}
@@ -71,6 +106,7 @@ public class SqlLimitResult<T> {
 	public long getTotals() {
 		return totals;
 	}
+
 	/**
 	 * 设置数据总行数
 	 * 
@@ -81,6 +117,7 @@ public class SqlLimitResult<T> {
 		this.totals = totals;
 		return this;
 	}
+
 	/**
 	 * 获取数据总页数
 	 * 
@@ -106,6 +143,7 @@ public class SqlLimitResult<T> {
 	public int getPage() {
 		return page;
 	}
+
 	/**
 	 * 获取每页显示多少行数据
 	 * 
@@ -114,6 +152,7 @@ public class SqlLimitResult<T> {
 	public int getSize() {
 		return size;
 	}
+
 	/**
 	 * 获取数据
 	 * 
@@ -122,6 +161,7 @@ public class SqlLimitResult<T> {
 	public List<T> getData() {
 		return data;
 	}
+
 	/**
 	 * 设置数据
 	 * 
@@ -132,6 +172,7 @@ public class SqlLimitResult<T> {
 		this.data = data;
 		return this;
 	}
+
 	@Override
 	public String toString() {
 		return "SqlLimitResult [totals=" + totals + ", pages=" + pages + ", page=" + page + ", size=" + size + ", data=" + data + "]";
