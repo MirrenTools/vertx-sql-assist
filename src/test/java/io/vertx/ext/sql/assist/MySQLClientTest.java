@@ -13,7 +13,7 @@ public class MySQLClientTest {
 		PoolOptions poolOptions = new PoolOptions().setMaxSize(5);
 		MySQLPool client = MySQLPool.pool(vertx, options, poolOptions);
 
-		MySQLSQL sql = new MySQLSQL(SQLExecute.create(client));
+		MySQLSQL sql = new MySQLSQL(SQLExecute.createMySQL(client));
 		User user = new User();
 		user.setName("name");
 		user.setPwd("pwd");

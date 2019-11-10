@@ -23,33 +23,37 @@ public interface SQLExecute<T> {
 	 * @param client
 	 * @return
 	 */
-	static SQLExecute<JDBCClient> create(JDBCClient client) {
+	static SQLExecute<JDBCClient> createJDBC(JDBCClient client) {
 		return new SQLExecuteJDBCImpl(client);
 	}
+
 	/**
 	 * 通过 MySQL客户端创建一个实例
 	 * 
 	 * @param client
 	 * @return
 	 */
-	static SQLExecute<MySQLPool> create(MySQLPool client) {
+	static SQLExecute<MySQLPool> createMySQL(MySQLPool client) {
 		return new SQLExecuteMySQLImpl(client);
 	}
+
 	/**
 	 * 通过 PostgreSQL客户端创建一个实例
 	 * 
 	 * @param client
 	 * @return
 	 */
-	static SQLExecute<PgPool> create(PgPool client) {
+	static SQLExecute<PgPool> createPostgreSQL(PgPool client) {
 		return new SQLExecutePgImpl(client);
 	}
+
 	/**
 	 * 获取客户端
 	 * 
 	 * @return
 	 */
 	T getClient();
+
 	/**
 	 * 执行查询
 	 * 
@@ -59,6 +63,7 @@ public interface SQLExecute<T> {
 	 *          返回结果
 	 */
 	void queryAsObj(SqlAndParams qp, Handler<AsyncResult<JsonObject>> handler);
+
 	/**
 	 * 执行查询
 	 * 
@@ -68,6 +73,7 @@ public interface SQLExecute<T> {
 	 *          返回结果
 	 */
 	void queryAsListObj(SqlAndParams qp, Handler<AsyncResult<List<JsonObject>>> handler);
+
 	/**
 	 * 执行查询
 	 * 

@@ -14,7 +14,7 @@ public class JDBCClientTest {
 				.put("driver_class", "com.mysql.cj.jdbc.Driver").put("password", "root").put("user", "root");
 		JDBCClient jdbcClient = JDBCClient.createShared(vertx, config);
 		// SQLStatement.register(OracleStatementSQL.class);
-		JDBCSQL sql = new JDBCSQL(SQLExecute.create(jdbcClient));
+		JDBCSQL sql = new JDBCSQL(SQLExecute.createJDBC(jdbcClient));
 		User user = new User();
 		user.setName("name");
 		user.setPwd("pwd");
