@@ -41,6 +41,7 @@ public class SqlAssist {
 	public SqlAssist() {
 		super();
 	}
+
 	/**
 	 * 该构造方法用于使用SqlAssist的静态条件方法,动态添加条件
 	 * 
@@ -60,6 +61,7 @@ public class SqlAssist {
 	public String toJsonStr() {
 		return toJson().toString();
 	}
+
 	/**
 	 * 将当前对象装换为JsonObject
 	 * 
@@ -109,6 +111,7 @@ public class SqlAssist {
 		}
 		return json;
 	}
+
 	/**
 	 * 将JsonObject对象装换为SqlAssist
 	 * 
@@ -175,6 +178,7 @@ public class SqlAssist {
 		}
 		return this;
 	}
+
 	/**
 	 * 添加查询条件,该方法一般用于初始化,因为会将现有的条件集清空,既this.condition=conditions
 	 * 
@@ -199,6 +203,7 @@ public class SqlAssist {
 		this.setConditions(SqlWhereCondition.and(column));
 		return this;
 	}
+
 	/**
 	 * 添加或者条件,列名与表达式<br>
 	 * 示例: column = id IS NULL<br>
@@ -212,6 +217,63 @@ public class SqlAssist {
 		this.setConditions(SqlWhereCondition.or(column));
 		return this;
 	}
+
+	/**
+	 * 添加并且条件,列名与表达式<br>
+	 * 示例: column = id<br>
+	 * SQL: [and] id IS NULL
+	 * 
+	 * @param column
+	 *          列名:如果表中存在相同列名使用表名.列名
+	 * @return
+	 */
+	public <T> SqlAssist andIsNull(String column) {
+		this.setConditions(SqlWhereCondition.andIsNull(column));
+		return this;
+	}
+
+	/**
+	 * 添加或者条件,列名与表达式<br>
+	 * 示例: column = id<br>
+	 * SQL: [or] id IS NULL
+	 * 
+	 * @param column
+	 *          列名:如果表中存在相同列名使用表名.列名
+	 * @return
+	 */
+	public <T> SqlAssist orIsNull(String column) {
+		this.setConditions(SqlWhereCondition.orIsNull(column));
+		return this;
+	}
+
+	/**
+	 * 添加并且条件,列名与表达式<br>
+	 * 示例: column = id<br>
+	 * SQL: [and] id IS NOT NULL
+	 * 
+	 * @param column
+	 *          列名:如果表中存在相同列名使用表名.列名
+	 * @return
+	 */
+	public <T> SqlAssist andIsNotNull(String column) {
+		this.setConditions(SqlWhereCondition.andIsNotNull(column));
+		return this;
+	}
+
+	/**
+	 * 添加或者条件,列名与表达式<br>
+	 * 示例: column = id<br>
+	 * SQL: [or] id IS NOT NULL
+	 * 
+	 * @param column
+	 *          列名:如果表中存在相同列名使用表名.列名
+	 * @return
+	 */
+	public <T> SqlAssist orIsNotNull(String column) {
+		this.setConditions(SqlWhereCondition.orIsNotNull(column));
+		return this;
+	}
+
 	/**
 	 * 添加并且等于条件<br>
 	 * 示例: column = id ,value =1<br>
@@ -435,6 +497,39 @@ public class SqlAssist {
 		this.setConditions(SqlWhereCondition.orLike(column, value));
 		return this;
 	}
+
+	/**
+	 * 添加并且like条件<br>
+	 * 示例: column = id ,value =%1%<br>
+	 * SQL: [and] id not like %1%
+	 * 
+	 * @param column
+	 *          列名:如果表中存在相同列名使用表名.列名
+	 * @param value
+	 *          条件值
+	 * @return
+	 */
+	public <T> SqlAssist andNotLike(String column, T value) {
+		this.setConditions(SqlWhereCondition.andNotLike(column, value));
+		return this;
+	}
+
+	/**
+	 * 添加或者like条件<br>
+	 * 示例: column = id ,value =%1%<br>
+	 * SQL: [or] id not like %1%
+	 * 
+	 * @param column
+	 *          列名:如果表中存在相同列名使用表名.列名
+	 * @param value
+	 *          条件值
+	 * @return
+	 */
+	public <T> SqlAssist orNotLike(String column, T value) {
+		this.setConditions(SqlWhereCondition.orNotLike(column, value));
+		return this;
+	}
+
 	/**
 	 * 添加自定义查询条件 :<br>
 	 * 示例: prefix= and id in(select tid from table where w=?) , value=1<br>
@@ -450,6 +545,7 @@ public class SqlAssist {
 		this.setConditions(SqlWhereCondition.customCondition(prefix, value));
 		return this;
 	}
+
 	/**
 	 * 自定义查询条件 :<br>
 	 * 示例 :prefix=and id in(?,?,?),value=1,2,3<br>
@@ -518,6 +614,7 @@ public class SqlAssist {
 		this.order = order;
 		return this;
 	}
+
 	/**
 	 * 获得排序
 	 * 
@@ -535,6 +632,7 @@ public class SqlAssist {
 	public String getGroupBy() {
 		return groupBy;
 	}
+
 	/**
 	 * 设置分组 示例传入: id,type<br>
 	 * SQL: GROUP BY id,type
@@ -547,6 +645,7 @@ public class SqlAssist {
 		this.groupBy = groupBy;
 		return this;
 	}
+
 	/**
 	 * 获取分组条件
 	 * 
@@ -572,6 +671,7 @@ public class SqlAssist {
 		this.havingValue = values;
 		return this;
 	}
+
 	/**
 	 * 获取Having的值
 	 * 
@@ -580,6 +680,7 @@ public class SqlAssist {
 	public JsonArray getHavingValue() {
 		return havingValue;
 	}
+
 	/**
 	 * 获得是否去重
 	 * 
@@ -601,6 +702,7 @@ public class SqlAssist {
 		}
 		return this;
 	}
+
 	/**
 	 * 设置一个现有的去除方案,该方法一般用于初始化,因为会将现有的distinct清除,既distinct=传入的distinct
 	 * 
@@ -620,6 +722,7 @@ public class SqlAssist {
 	public Integer getStartRow() {
 		return startRow;
 	}
+
 	/**
 	 * 获取第几页
 	 * 
@@ -628,6 +731,7 @@ public class SqlAssist {
 	public Integer getPage() {
 		return page;
 	}
+
 	/**
 	 * 设置第几页,该值仅在limitAll方法中有效,最终会被转换为startRow
 	 * 
@@ -686,6 +790,7 @@ public class SqlAssist {
 		this.resultColumn = resultColumn;
 		return this;
 	}
+
 	/**
 	 * 获取连接查询或多表查询语句
 	 * 
@@ -694,6 +799,7 @@ public class SqlAssist {
 	public String getJoinOrReference() {
 		return joinOrReference;
 	}
+
 	/**
 	 * 设置连接查询或多表查询语句<br>
 	 * 多表示例: ,table2,table3<br>
@@ -725,6 +831,7 @@ public class SqlAssist {
 	public Object getCustom() {
 		return custom;
 	}
+
 	/**
 	 * 设置自定义属性
 	 * 
@@ -736,7 +843,7 @@ public class SqlAssist {
 
 	@Override
 	public String toString() {
-		return "SqlAssist [distinct=" + distinct + ", order=" + order + ", startRow=" + startRow + ", rowSize=" + rowSize + ", resultColumn="
-				+ resultColumn + ", condition=" + condition + ", custom=" + custom + "]";
+		return "SqlAssist [distinct=" + distinct + ", order=" + order + ", startRow=" + startRow + ", rowSize=" + rowSize + ", resultColumn=" + resultColumn + ", condition=" + condition + ", custom="
+				+ custom + "]";
 	}
 }

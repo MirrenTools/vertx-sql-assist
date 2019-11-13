@@ -12,16 +12,17 @@ import io.vertx.core.json.JsonObject;
  * 
  * @author <a href="http://szmirren.com">Mirren</a>
  *
- * @param <E>
- *          SQL执行器的数据类型,比如JDBCClient
+ * @param <C>
+ *          SQL执行器的客户端类型,比如JDBCClient
  */
-public interface CommonSQLClinet<E> {
+public interface CommonSQLClinet<C> {
 	/**
 	 * 获取客户端
 	 * 
 	 * @return
 	 */
-	E getDbClient();
+	C getDbClient();
+
 	/**
 	 * 执行查询
 	 * 
@@ -31,6 +32,7 @@ public interface CommonSQLClinet<E> {
 	 *          返回结果
 	 */
 	void queryAsObj(SqlAndParams qp, Handler<AsyncResult<JsonObject>> handler);
+
 	/**
 	 * 执行查询
 	 * 
@@ -40,6 +42,7 @@ public interface CommonSQLClinet<E> {
 	 *          返回结果
 	 */
 	void queryAsListObj(SqlAndParams qp, Handler<AsyncResult<List<JsonObject>>> handler);
+
 	/**
 	 * 执行查询
 	 * 
@@ -78,6 +81,7 @@ public interface CommonSQLClinet<E> {
 	 *          返回数据总行数
 	 */
 	void getCount(Handler<AsyncResult<Long>> handler);
+
 	/**
 	 * 获取数据总行数
 	 * 
@@ -95,6 +99,7 @@ public interface CommonSQLClinet<E> {
 	 *          结果集
 	 */
 	void selectAll(Handler<AsyncResult<List<JsonObject>>> handler);
+
 	/**
 	 * 通过查询工具查询所有数据
 	 * 
@@ -161,6 +166,7 @@ public interface CommonSQLClinet<E> {
 	 *          结果:如果存在返回JsonObject,不存在返回null
 	 */
 	<T> void selectSingleByObj(T obj, Handler<AsyncResult<JsonObject>> handler);
+
 	/**
 	 * 将对象属性不为null的属性作为条件查询出数据,只取查询出来的第一条数据
 	 * 
@@ -173,6 +179,7 @@ public interface CommonSQLClinet<E> {
 	 *          结果:如果存在返回JsonObject,不存在返回null
 	 */
 	<T> void selectSingleByObj(T obj, String resultColumns, Handler<AsyncResult<JsonObject>> handler);
+
 	/**
 	 * 将对象属性不为null的属性作为条件查询出数据,只取查询出来的第一条数据
 	 * 
@@ -186,6 +193,7 @@ public interface CommonSQLClinet<E> {
 	 *          结果:如果存在返回JsonObject,不存在返回null
 	 */
 	<T> void selectSingleByObj(T obj, String resultColumns, String joinOrReference, Handler<AsyncResult<JsonObject>> handler);
+
 	/**
 	 * 将对象属性不为null的属性作为条件查询出数据
 	 * 
@@ -196,6 +204,7 @@ public interface CommonSQLClinet<E> {
 	 *          返回结果集
 	 */
 	<T> void selectByObj(T obj, Handler<AsyncResult<List<JsonObject>>> handler);
+
 	/**
 	 * 将对象属性不为null的属性作为条件查询出数据
 	 * 
@@ -208,6 +217,7 @@ public interface CommonSQLClinet<E> {
 	 *          返回结果集
 	 */
 	<T> void selectByObj(T obj, String resultColumns, Handler<AsyncResult<List<JsonObject>>> handler);
+
 	/**
 	 * 将对象属性不为null的属性作为条件查询出数据
 	 * 
@@ -251,6 +261,7 @@ public interface CommonSQLClinet<E> {
 	 *          成功返回受影响的行数,如果对象为null或空则返回0
 	 */
 	<T> void insertBatch(List<T> list, Handler<AsyncResult<Long>> handler);
+
 	/**
 	 * 批量添加自定字段
 	 * 

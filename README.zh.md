@@ -9,7 +9,7 @@ vertx-sql-assist是 [Vert.x](https://vertx.io/) 的SQL操作帮助工具,它提�
 <dependency>
   <groupId>org.mirrentools</groupId>
   <artifactId>vertx-sql-assist</artifactId>
-  <version>RELEASE</version>
+  <version>1.0.2</version>
 </dependency>
 ```
 ## SQL类方法说明
@@ -64,6 +64,12 @@ vertx-sql-assist是 [Vert.x](https://vertx.io/) 的SQL操作帮助工具,它提�
 * **orGte** 添加或者大于等于条件
 * **andLike** 添加并且like条件
 * **orLike** 添加或者like条件
+* **andNotLike** 添加并且not like条件
+* **orNotLike** 添加或者not like条件
+* **andisNull** 添加并且is null条件
+* **orisNull** 添加或者is null条件
+* **andIsNotNull** 添加并且is not null条件
+* **orIsNotNull** 添加或者is not null条件
 * **setConditions** 添加查询条件
 * **customCondition** 添加自定义查询条件
 
@@ -111,12 +117,13 @@ public class User {
 2.创建SQL类并继承CommonSQL
 
 ``` java
-public class UserSQL extends MySQL<JDBCClient> {//(1)
+public class UserSQL extends CommonSQL<User,JDBCClient> {//(1)
 	public UserSQL(SQLExecute<JDBCClient> execute) {
-		super(User.class, execute);//(2)
+		super(execute);
 	}
-  //(1)JDBCClient 可以是别的数据库客户端
-  //(2)super 第一个参数必须是有@Table, @TableId,@TableColumn注解的实体类
+  // (1)
+  // User 必须是有@Table, @TableId,@TableColumn注解的实体类
+  // JDBCClient 可以是别的数据库客户端
   //实现其他的方法
 }  
 ```

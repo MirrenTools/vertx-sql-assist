@@ -20,6 +20,7 @@ public class SqlWhereCondition<T> {
 	private T value;
 	/** 条件值,多个 */
 	private Object[] values;
+
 	/**
 	 * 将当前对象装换为JsonObject
 	 * 
@@ -66,14 +67,17 @@ public class SqlWhereCondition<T> {
 		}
 		return condition;
 	}
+
 	public SqlWhereCondition() {
 		super();
 	}
+
 	public SqlWhereCondition(String require, T value) {
 		super();
 		this.require = require;
 		this.value = value;
 	}
+
 	public SqlWhereCondition(String require, Object... values) {
 		super();
 		this.require = require;
@@ -277,6 +281,82 @@ public class SqlWhereCondition<T> {
 	}
 
 	/**
+	 * SQL: [and] column not like value <br>
+	 * 解释: 并且列名not like条件值
+	 * 
+	 * @param column
+	 *          列名,如果存在相同列名则使用表名.列名
+	 * @param value
+	 *          条件值,通配符需要自己添加
+	 * @return
+	 */
+	public static <T> SqlWhereCondition<T> andNotLike(String column, T value) {
+		return new SqlWhereCondition<T>("and " + column + " not like ? ", value);
+	}
+
+	/**
+	 * SQL: [or] column not like value <br>
+	 * 解释: 或者列名 not like条件值
+	 * 
+	 * @param column
+	 *          列名,如果存在相同列名则使用表名.列名
+	 * @param value
+	 *          条件值,通配符需要自己添加
+	 * @return
+	 */
+	public static <T> SqlWhereCondition<T> orNotLike(String column, T req) {
+		return new SqlWhereCondition<T>("or " + column + " not like ? ", req);
+	}
+
+	/**
+	 * SQL: [and] column is null <br>
+	 * 解释: 或者列名is null
+	 * 
+	 * @param column
+	 *          列名,如果存在相同列名则使用表名.列名
+	 * @return
+	 */
+	public static <T> SqlWhereCondition<T> andIsNull(String column) {
+		return new SqlWhereCondition<T>("and " + column + " is null ");
+	}
+
+	/**
+	 * SQL: [or] column is null <br>
+	 * 解释: 或者列名is null
+	 * 
+	 * @param column
+	 *          列名,如果存在相同列名则使用表名.列名
+	 * @return
+	 */
+	public static <T> SqlWhereCondition<T> orIsNull(String column) {
+		return new SqlWhereCondition<T>("or " + column + " is null ");
+	}
+
+	/**
+	 * SQL: [and] column is not null <br>
+	 * 解释: 或者列名is not null
+	 * 
+	 * @param column
+	 *          列名,如果存在相同列名则使用表名.列名
+	 * @return
+	 */
+	public static <T> SqlWhereCondition<T> andIsNotNull(String column) {
+		return new SqlWhereCondition<T>("and " + column + " is not null ");
+	}
+
+	/**
+	 * SQL: [or] column is not null <br>
+	 * 解释: 或者列名is not null
+	 * 
+	 * @param column
+	 *          列名,如果存在相同列名则使用表名.列名
+	 * @return
+	 */
+	public static <T> SqlWhereCondition<T> orIsNotNull(String column) {
+		return new SqlWhereCondition<T>("or " + column + " is not null ");
+	}
+
+	/**
 	 * SQL: [and] column [Syntax]<br>
 	 * 解释: 并且列名表达式,比如colum is null
 	 * 
@@ -287,6 +367,7 @@ public class SqlWhereCondition<T> {
 	public static <T> SqlWhereCondition<T> and(String column) {
 		return new SqlWhereCondition<T>("and " + column + " ");
 	}
+
 	/**
 	 * SQL: [or] column [Syntax] <br>
 	 * 解释: 或者列名表达式,比如colum is null
@@ -314,6 +395,7 @@ public class SqlWhereCondition<T> {
 	public static <T> SqlWhereCondition<?> customCondition(String prefix, T value) {
 		return new SqlWhereCondition<Object>(prefix, value);
 	}
+
 	/**
 	 * 自定义查询条件 :<br>
 	 * 示例 :<br>

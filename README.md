@@ -11,7 +11,7 @@ To use vertx-sql-assist, add the following dependency to the dependencies sectio
 <dependency>
   <groupId>org.mirrentools</groupId>
   <artifactId>vertx-sql-assist</artifactId>
-  <version>RELEASE</version>
+  <version>1.0.2</version>
 </dependency>
 ```
 ## SQL class method description
@@ -66,6 +66,12 @@ To use vertx-sql-assist, add the following dependency to the dependencies sectio
 * **orGte** Add or greater than or equal to condition
 * **andLike** Add and like condition
 * **orLike** Add or like condition
+* **andNotLike** Add and not like condition
+* **orNotLike** Add or not like condition
+* **andIsNull** Add and is null condition
+* **orIsNull** Add or is null condition
+* **andIsNotNull** Add and is not null condition
+* **orIsNotNull** Add or is not null condition
 * **setConditions** Add query condition
 * **customCondition** Add custom query condition
 
@@ -112,12 +118,13 @@ public class User {
 2.Create SQL class and  extends CommonSQL
 
 ``` java
-public class UserSQL extends MySQL<JDBCClient> {//(1)
+public class UserSQL extends CommonSQL<User,JDBCClient> {//(1)
 	public UserSQL(SQLExecute<JDBCClient> execute) {
-		super(User.class, execute);//(2)
+		super(execute);
 	}
-  //(1)JDBCClient can be another database client
-  //(2)The first parameter must be an entity class annotation with @Table, @TableId, @TableColumn
+  //(1)
+  //The User must be an entity class annotation with @Table, @TableId, @TableColumn
+  //JDBCClient can be another database client
   //Override other methods
 }  
 ```

@@ -85,6 +85,7 @@ public abstract class AbstractStatementSQL implements SQLStatement {
 		}
 		this.sqlResultColumns = column.substring(1);
 	}
+
 	/**
 	 * 获取表名称
 	 * 
@@ -93,6 +94,7 @@ public abstract class AbstractStatementSQL implements SQLStatement {
 	public String getSqlTableName() {
 		return sqlTableName;
 	}
+
 	/**
 	 * 设置表名称
 	 * 
@@ -103,6 +105,7 @@ public abstract class AbstractStatementSQL implements SQLStatement {
 		this.sqlTableName = sqlTableName;
 		return this;
 	}
+
 	/**
 	 * 获取主键名称
 	 * 
@@ -111,8 +114,9 @@ public abstract class AbstractStatementSQL implements SQLStatement {
 	public String getSqlPrimaryId() {
 		return sqlPrimaryId;
 	}
+
 	/**
-	 * 设置主键名称
+	 * 设置主键名称,当有多个主键时可以重写给方法设置以哪一个主键为主
 	 * 
 	 * @param sqlPrimaryId
 	 * @return
@@ -121,6 +125,7 @@ public abstract class AbstractStatementSQL implements SQLStatement {
 		this.sqlPrimaryId = sqlPrimaryId;
 		return this;
 	}
+
 	/**
 	 * 获取表返回列
 	 * 
@@ -129,6 +134,7 @@ public abstract class AbstractStatementSQL implements SQLStatement {
 	public String getSqlResultColumns() {
 		return sqlResultColumns;
 	}
+
 	/**
 	 * 设置表返回列
 	 * 
@@ -148,7 +154,8 @@ public abstract class AbstractStatementSQL implements SQLStatement {
 	 */
 	protected <T> List<SqlPropertyValue<?>> getPropertyValue(T obj) throws Exception {
 		Field[] fields = obj.getClass().getDeclaredFields();
-		List<SqlPropertyValue<?>> result = new ArrayList<>();;
+		List<SqlPropertyValue<?>> result = new ArrayList<>();
+		;
 		for (Field field : fields) {
 			field.setAccessible(true);
 			TableId tableId = field.getAnnotation(TableId.class);
@@ -288,8 +295,8 @@ public abstract class AbstractStatementSQL implements SQLStatement {
 
 	@Override
 	public <S> SqlAndParams selectByIdSQL(S primaryValue, String resultColumns, String joinOrReference) {
-		String sql = String.format("select %s from %s %s where %s = ? ", (resultColumns == null ? getSqlResultColumns() : resultColumns),
-				getSqlTableName(), (joinOrReference == null ? "" : joinOrReference), getSqlPrimaryId());
+		String sql = String.format("select %s from %s %s where %s = ? ", (resultColumns == null ? getSqlResultColumns() : resultColumns), getSqlTableName(),
+				(joinOrReference == null ? "" : joinOrReference), getSqlPrimaryId());
 		JsonArray params = new JsonArray();
 		params.add(primaryValue);
 		SqlAndParams result = new SqlAndParams(sql, params);
@@ -302,8 +309,7 @@ public abstract class AbstractStatementSQL implements SQLStatement {
 	@Override
 	public <T> SqlAndParams selectByObjSQL(T obj, String resultColumns, String joinOrReference, boolean single) {
 		StringBuilder sql = new StringBuilder(
-				String.format("select %s from %s %s ", (resultColumns == null ? getSqlResultColumns() : resultColumns), getSqlTableName(),
-						(joinOrReference == null ? "" : joinOrReference)));
+				String.format("select %s from %s %s ", (resultColumns == null ? getSqlResultColumns() : resultColumns), getSqlTableName(), (joinOrReference == null ? "" : joinOrReference)));
 		JsonArray params = null;
 		boolean isFrist = true;
 		List<SqlPropertyValue<?>> propertyValue;
@@ -805,7 +811,8 @@ public abstract class AbstractStatementSQL implements SQLStatement {
 			for (Object value : where.get(0).getValues()) {
 				params.add(value);
 			}
-		} ;
+		}
+		;
 		for (int i = 1; i < where.size(); i++) {
 			whereStr.append(where.get(i).getRequire());
 			if (where.get(i).getValue() != null) {

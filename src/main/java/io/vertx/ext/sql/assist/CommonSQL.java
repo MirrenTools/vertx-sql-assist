@@ -1,17 +1,25 @@
 package io.vertx.ext.sql.assist;
 
+import java.lang.reflect.ParameterizedType;
 import java.util.List;
 
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-
-public abstract class CommonSQL<E> implements CommonSQLClinet<E> {
+/**
+ * 通用的数据库操作客户端的默认实现,
+ * @author <a href="http://mirrentools.org">Mirren</a>
+ *
+ * @param <E> 实体类的类型
+ * @param <C> SQL执行器的客户端类型,比如JDBCClient
+ */
+public abstract class CommonSQL<E, C> implements CommonSQLClinet<C> {
 	/** SQL 执行器 */
-	private SQLExecute<E> execute;
+	private SQLExecute<C> execute;
 	/** SQL 命令 */
 	private SQLCommand command;
+
 	/**
 	 * 使用以注册或默认的{@link SQLStatement}
 	 * 
@@ -20,10 +28,12 @@ public abstract class CommonSQL<E> implements CommonSQLClinet<E> {
 	 * @param execute
 	 *          执行器
 	 */
-	public CommonSQL(Class<?> entityClz, SQLExecute<E> execute) {
+	public CommonSQL(SQLExecute<C> execute) {
+		Class<?> entityClz = (Class<?>) ((ParameterizedType) this.getClass().getGenericSuperclass()).getActualTypeArguments()[0];
 		SQLStatement statement = SQLStatement.create(entityClz);
 		this.command = new SQLCommandImpl(statement, execute);
 	}
+
 	/**
 	 * 使用自定义的{@link SQLStatement}
 	 * 
@@ -35,6 +45,7 @@ public abstract class CommonSQL<E> implements CommonSQLClinet<E> {
 	public CommonSQL(SQLExecute<E> execute, SQLStatement statement) {
 		this.command = new SQLCommandImpl(statement, execute);
 	}
+
 	/**
 	 * 获取客户端
 	 * 
@@ -42,7 +53,7 @@ public abstract class CommonSQL<E> implements CommonSQLClinet<E> {
 	 * 
 	 */
 	@Override
-	public E getDbClient() {
+	public C getDbClient() {
 		return execute.getClient();
 	}
 

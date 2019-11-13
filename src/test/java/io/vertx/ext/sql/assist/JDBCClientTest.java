@@ -47,7 +47,7 @@ public class JDBCClientTest {
 				System.err.println(res.cause());
 			}
 		});
-		sql.selectAll(new SqlAssist().setStartRow(10).setRowSize(5), res -> {
+		sql.selectAll(new SqlAssist().setStartRow(0).setRowSize(5), res -> {
 			if (res.succeeded()) {
 				System.out.println("selectAllAssist: " + res.result());
 			} else {
