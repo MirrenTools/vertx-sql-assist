@@ -11,7 +11,7 @@ To use vertx-sql-assist, add the following dependency to the dependencies sectio
 <dependency>
   <groupId>org.mirrentools</groupId>
   <artifactId>vertx-sql-assist</artifactId>
-  <version>1.0.2</version>
+  <version>1.0.3</version>
 </dependency>
 ```
 ## SQL class method description

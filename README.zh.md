@@ -9,7 +9,7 @@ vertx-sql-assist是 [Vert.x](https://vertx.io/) 的SQL操作帮助工具,它提�
 <dependency>
   <groupId>org.mirrentools</groupId>
   <artifactId>vertx-sql-assist</artifactId>
-  <version>1.0.2</version>
+  <version>1.0.3</version>
 </dependency>
 ```
 ## SQL类方法说明
