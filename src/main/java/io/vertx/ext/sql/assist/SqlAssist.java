@@ -642,7 +642,7 @@ public class SqlAssist {
 	 * @return
 	 */
 	public SqlAssist setGroupBy(String groupBy) {
-		this.groupBy = " group by " + groupBy;
+		this.groupBy = groupBy;
 		return this;
 	}
 
@@ -667,7 +667,7 @@ public class SqlAssist {
 	 * @return
 	 */
 	public SqlAssist setHaving(String having, JsonArray values) {
-		this.having = " having " + having;
+		this.having = having;
 		this.havingValue = values;
 		return this;
 	}
