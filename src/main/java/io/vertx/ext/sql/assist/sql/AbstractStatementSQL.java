@@ -164,9 +164,9 @@ public abstract class AbstractStatementSQL implements SQLStatement {
 				continue;
 			}
 			if (tableId != null) {
-				result.add(0, new SqlPropertyValue<>(field.getName(), field.get(obj)));
+				result.add(0, new SqlPropertyValue<>(tableId.value(), field.get(obj)));
 			} else {
-				result.add(new SqlPropertyValue<>(field.getName(), field.get(obj)));
+				result.add(new SqlPropertyValue<>(tableCol.value(), field.get(obj)));
 			}
 		}
 		return result;
