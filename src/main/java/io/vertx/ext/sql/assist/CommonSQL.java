@@ -7,12 +7,16 @@ import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+
 /**
  * 通用的数据库操作客户端的默认实现,
+ * 
  * @author <a href="http://mirrentools.org">Mirren</a>
  *
- * @param <E> 实体类的类型
- * @param <C> SQL执行器的客户端类型,比如JDBCClient
+ * @param <E>
+ *          实体类的类型
+ * @param <C>
+ *          SQL执行器的客户端类型,比如JDBCClient
  */
 public abstract class CommonSQL<E, C> implements CommonSQLClinet<C> {
 	/** SQL 执行器 */
@@ -31,6 +35,7 @@ public abstract class CommonSQL<E, C> implements CommonSQLClinet<C> {
 	public CommonSQL(SQLExecute<C> execute) {
 		Class<?> entityClz = (Class<?>) ((ParameterizedType) this.getClass().getGenericSuperclass()).getActualTypeArguments()[0];
 		SQLStatement statement = SQLStatement.create(entityClz);
+		this.execute = execute;
 		this.command = new SQLCommandImpl(statement, execute);
 	}
 
