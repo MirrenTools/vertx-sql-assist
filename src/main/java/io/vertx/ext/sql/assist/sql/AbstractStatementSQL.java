@@ -80,8 +80,8 @@ public abstract class AbstractStatementSQL implements SQLStatement {
 		if (!hasId) {
 			throw new NullPointerException(entity.getName() + " no TableId annotation ,you need to set @TableId on the field");
 		}
-		if (!hasCol) {
-			throw new NullPointerException(entity.getName() + " no TableId annotation ,you need to set @TableId on the field");
+		if (!hasCol && !hasId) {
+			throw new NullPointerException(entity.getName() + " no TableColumn annotation ,you need to set @TableColumn on the field");
 		}
 		this.sqlResultColumns = column.substring(1);
 	}
@@ -154,8 +154,7 @@ public abstract class AbstractStatementSQL implements SQLStatement {
 	 */
 	protected <T> List<SqlPropertyValue<?>> getPropertyValue(T obj) throws Exception {
 		Field[] fields = obj.getClass().getDeclaredFields();
-		List<SqlPropertyValue<?>> result = new ArrayList<>();
-		;
+		List<SqlPropertyValue<?>> result = new ArrayList<>();;
 		for (Field field : fields) {
 			field.setAccessible(true);
 			TableId tableId = field.getAnnotation(TableId.class);
@@ -295,8 +294,8 @@ public abstract class AbstractStatementSQL implements SQLStatement {
 
 	@Override
 	public <S> SqlAndParams selectByIdSQL(S primaryValue, String resultColumns, String joinOrReference) {
-		String sql = String.format("select %s from %s %s where %s = ? ", (resultColumns == null ? getSqlResultColumns() : resultColumns), getSqlTableName(),
-				(joinOrReference == null ? "" : joinOrReference), getSqlPrimaryId());
+		String sql = String.format("select %s from %s %s where %s = ? ", (resultColumns == null ? getSqlResultColumns() : resultColumns),
+				getSqlTableName(), (joinOrReference == null ? "" : joinOrReference), getSqlPrimaryId());
 		JsonArray params = new JsonArray();
 		params.add(primaryValue);
 		SqlAndParams result = new SqlAndParams(sql, params);
@@ -309,7 +308,8 @@ public abstract class AbstractStatementSQL implements SQLStatement {
 	@Override
 	public <T> SqlAndParams selectByObjSQL(T obj, String resultColumns, String joinOrReference, boolean single) {
 		StringBuilder sql = new StringBuilder(
-				String.format("select %s from %s %s ", (resultColumns == null ? getSqlResultColumns() : resultColumns), getSqlTableName(), (joinOrReference == null ? "" : joinOrReference)));
+				String.format("select %s from %s %s ", (resultColumns == null ? getSqlResultColumns() : resultColumns), getSqlTableName(),
+						(joinOrReference == null ? "" : joinOrReference)));
 		JsonArray params = null;
 		boolean isFrist = true;
 		List<SqlPropertyValue<?>> propertyValue;
@@ -811,8 +811,7 @@ public abstract class AbstractStatementSQL implements SQLStatement {
 			for (Object value : where.get(0).getValues()) {
 				params.add(value);
 			}
-		}
-		;
+		} ;
 		for (int i = 1; i < where.size(); i++) {
 			whereStr.append(where.get(i).getRequire());
 			if (where.get(i).getValue() != null) {

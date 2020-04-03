@@ -114,8 +114,9 @@ public class SqlAndParams {
 	 * 
 	 * @param sql
 	 */
-	public void setSql(String sql) {
+	public SqlAndParams setSql(String sql) {
 		this.sql = sql;
+		return this;
 	}
 	/**
 	 * 获得参数
@@ -128,8 +129,9 @@ public class SqlAndParams {
 	/**
 	 * 设置参数
 	 */
-	public void setParams(JsonArray params) {
+	public SqlAndParams setParams(JsonArray params) {
 		this.params = params;
+		return this;
 	}
 	/**
 	 * 获取SQL语句集合
@@ -144,8 +146,9 @@ public class SqlAndParams {
 	 * 
 	 * @param batchSql
 	 */
-	public void setBatchSql(List<String> batchSql) {
+	public SqlAndParams setBatchSql(List<String> batchSql) {
 		this.batchSql = batchSql;
+		return this;
 	}
 	/**
 	 * 获取参数集合
@@ -160,8 +163,9 @@ public class SqlAndParams {
 	 * 
 	 * @param batchParams
 	 */
-	public void setBatchParams(List<JsonArray> batchParams) {
+	public SqlAndParams setBatchParams(List<JsonArray> batchParams) {
 		this.batchParams = batchParams;
+		return this;
 	}
 	/**
 	 * 获取是否成功
@@ -176,8 +180,9 @@ public class SqlAndParams {
 	 * 
 	 * @param succeeded
 	 */
-	public void setSucceeded(boolean succeeded) {
+	public SqlAndParams setSucceeded(boolean succeeded) {
 		this.succeeded = succeeded;
+		return this;
 	}
 
 	/**
