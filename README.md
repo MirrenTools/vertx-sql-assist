@@ -75,6 +75,8 @@ To use vertx-sql-assist, add the following dependency to the dependencies sectio
 * **customCondition** Add custom query condition
 
 ## SqlAssist Use example
+[Example project](https://github.com/shenzhenMirren/vertx-sql-assist-examples)
+
 ``` java
 // (1)Create SqlAssist
 SqlAssist assist = new SqlAssist();

@@ -73,6 +73,9 @@ vertx-sql-assist是 [Vert.x](https://vertx.io/) 的SQL操作帮助工具,它提�
 * **customCondition** 添加自定义查询条件
 
 ## SqlAssist使用示例
+[示例项目](https://github.com/shenzhenMirren/vertx-sql-assist-examples)
+
+
 ``` java
 // (1)创建Assist帮助类
 SqlAssist assist = new SqlAssist();
