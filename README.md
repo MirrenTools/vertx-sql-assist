@@ -11,7 +11,7 @@ To use vertx-sql-assist, add the following dependency to the dependencies sectio
 <dependency>
   <groupId>org.mirrentools</groupId>
   <artifactId>vertx-sql-assist</artifactId>
-  <version>${assist.version}</version>
+  <version>RELEASE</version>
 </dependency>
 ```
 ## SQL class method description
@@ -33,12 +33,11 @@ To use vertx-sql-assist, add the following dependency to the dependencies sectio
 * **updateSetNullByAssist** Set the column to null by SqlAssist
 * **deleteById** Delete by ID
 * **deleteByAssist** Delete by SqlAssist
-* **queryExecuteAsObj** Execution query result is JsonObject
-* **queryExecuteAsList** Execution query result is JsonArray
-* **queryExecute** Execution query result is ResultSet
-* **updateExecuteResult** Execution update result is number of affected rows
-* **updateExecute** Execution update result is UpdateResult
-* **batchExecute** Batch Execution
+* **queryAsObj** Execution query result is JsonObject
+* **queryAsListObj** Execution query result is JsonArray
+* **queryAsListArray** Execution query result is JsonArray
+* **update** Execution update result is number of affected rows
+* **batch** Batch Execution
 
 ## SqlAssist方法说明
 * **setOrders** Set OrderBy with SqlAssist.order(column,mode)

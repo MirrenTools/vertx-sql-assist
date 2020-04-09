@@ -9,7 +9,7 @@ vertx-sql-assist是 [Vert.x](https://vertx.io/) 的SQL操作帮助工具,它提�
 <dependency>
   <groupId>org.mirrentools</groupId>
   <artifactId>vertx-sql-assist</artifactId>
-  <version>${assist.version}</version>
+  <version>RELEASE</version>
 </dependency>
 ```
 ## SQL类方法说明
@@ -31,12 +31,11 @@ vertx-sql-assist是 [Vert.x](https://vertx.io/) 的SQL操作帮助工具,它提�
 * **updateSetNullByAssist** 通过Assist作为条件设置指定的列为空
 * **deleteById** 通过主键值删除对应的数据行
 * **deleteByAssist** 通过SqlAssist条件集删除对应的数据行
-* **queryExecuteAsObj** 执行查询结果为JsonObject
-* **queryExecuteAsList** 执行查询结果为JsonArray
-* **queryExecute** 执行查询结果为ResultSet
-* **updateExecuteResult** 执行更新等操作得到受影响的行数
-* **updateExecute** 执行更新等操作 UpdateResult
-* **batchExecute** 批量执行
+* **queryAsObj** 执行查询结果为JsonObject
+* **queryAsListObj** 执行查询结果为JsonArray
+* **queryAsListArray** 执行查询结果为ResultSet
+* **update** 执行更新等操作得到受影响的行数
+* **batch** 批量执行
 
 ## SqlAssist方法说明
 * **setOrders** 设置排序,通过SqlAssist.order(列名,排序方式)
