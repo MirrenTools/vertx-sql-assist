@@ -843,7 +843,7 @@ public class SqlAssist {
 
 	@Override
 	public String toString() {
-		return "SqlAssist [distinct=" + distinct + ", order=" + order + ", startRow=" + startRow + ", rowSize=" + rowSize + ", resultColumn=" + resultColumn + ", condition=" + condition + ", custom="
-				+ custom + "]";
+		return "SqlAssist [distinct=" + distinct + ", order=" + order + ", startRow=" + startRow + ", rowSize=" + rowSize + ", resultColumn="
+				+ resultColumn + ", condition=" + condition + ", custom=" + custom + "]";
 	}
 }

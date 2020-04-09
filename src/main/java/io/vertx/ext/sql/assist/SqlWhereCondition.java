@@ -393,7 +393,7 @@ public class SqlWhereCondition<T> {
 	 * @return
 	 */
 	public static <T> SqlWhereCondition<?> customCondition(String prefix, T value) {
-		return new SqlWhereCondition<Object>(prefix, value);
+		return new SqlWhereCondition<Object>(prefix + " ", value);
 	}
 
 	/**
@@ -409,7 +409,7 @@ public class SqlWhereCondition<T> {
 	 * @return
 	 */
 	public static SqlWhereCondition<?> customCondition(String prefix, Object... value) {
-		return new SqlWhereCondition<Object>(prefix, value);
+		return new SqlWhereCondition<Object>(prefix + " ", value);
 	}
 
 	public String getRequire() {
