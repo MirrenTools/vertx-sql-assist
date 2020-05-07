@@ -153,7 +153,12 @@ public class SqlAssist {
 	public SqlAssist setConditions(SqlWhereCondition<?> require) {
 		if (this.condition == null) {
 			this.condition = new ArrayList<SqlWhereCondition<?>>();
-			require.setRequire(require.getRequire().replace("and ", " ").replace("or ", " "));
+			if (require.getRequire() != null) {
+				String req = require.getRequire().trim();
+				if (req.toLowerCase().startsWith("and ") || req.toLowerCase().startsWith("or ")) {
+					require.setRequire(req.substring(req.indexOf(" ") + 1));
+				}
+			}
 		}
 		this.condition.add(require);
 		return this;
@@ -172,7 +177,12 @@ public class SqlAssist {
 		}
 		for (int i = 0; i < require.length; i++) {
 			if (i == 0 && this.condition.size() == 0) {
-				require[i].setRequire(require[i].getRequire().replace("and ", " ").replace("or ", " "));
+				if (require[i].getRequire() != null) {
+					String req = require[i].getRequire().trim();
+					if (req.toLowerCase().startsWith("and ") || req.toLowerCase().startsWith("or ")) {
+						require[i].setRequire(req.substring(req.indexOf(" ") + 1));
+					}
+				}
 			}
 			this.condition.add(require[i]);
 		}

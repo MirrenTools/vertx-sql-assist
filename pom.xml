@@ -5,7 +5,7 @@
 
 	<groupId>org.mirrentools</groupId>
 	<artifactId>vertx-sql-assist</artifactId>
-	<version>1.0.7</version>
+	<version>1.0.8</version>
 	<packaging>jar</packaging>
 	<name>vertx-sql-assist</name>
 	<description>vertx-sql-assist is the SQL operation help tool of Vert.x, which provides the support of insert, delete, update, query, join, paging query, cooperate with SqlAssist help class, it basically does not need to write a line of SQL code.</description>
