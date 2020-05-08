@@ -156,7 +156,7 @@ public class SqlAssist {
 			if (require.getRequire() != null) {
 				String req = require.getRequire().trim();
 				if (req.toLowerCase().startsWith("and ") || req.toLowerCase().startsWith("or ")) {
-					require.setRequire(req.substring(req.indexOf(" ") + 1));
+					require.setRequire(req.substring(req.indexOf(" ") + 1)+" ");
 				}
 			}
 		}
@@ -180,7 +180,7 @@ public class SqlAssist {
 				if (require[i].getRequire() != null) {
 					String req = require[i].getRequire().trim();
 					if (req.toLowerCase().startsWith("and ") || req.toLowerCase().startsWith("or ")) {
-						require[i].setRequire(req.substring(req.indexOf(" ") + 1));
+						require[i].setRequire(req.substring(req.indexOf(" ") + 1)+" ");
 					}
 				}
 			}
