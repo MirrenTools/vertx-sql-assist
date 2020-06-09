@@ -7,8 +7,6 @@ import io.vertx.core.Handler;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.jdbc.JDBCClient;
-import io.vertx.mysqlclient.MySQLPool;
-import io.vertx.pgclient.PgPool;
 
 /**
  * SQL执行器
@@ -25,26 +23,6 @@ public interface SQLExecute<T> {
 	 */
 	static SQLExecute<JDBCClient> createJDBC(JDBCClient client) {
 		return new SQLExecuteJDBCImpl(client);
-	}
-
-	/**
-	 * 通过 MySQL客户端创建一个实例
-	 * 
-	 * @param client
-	 * @return
-	 */
-	static SQLExecute<MySQLPool> createMySQL(MySQLPool client) {
-		return new SQLExecuteMySQLImpl(client);
-	}
-
-	/**
-	 * 通过 PostgreSQL客户端创建一个实例
-	 * 
-	 * @param client
-	 * @return
-	 */
-	static SQLExecute<PgPool> createPostgreSQL(PgPool client) {
-		return new SQLExecutePgImpl(client);
 	}
 
 	/**

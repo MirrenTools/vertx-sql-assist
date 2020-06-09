@@ -5,15 +5,18 @@
 
 	<groupId>org.mirrentools</groupId>
 	<artifactId>vertx-sql-assist</artifactId>
-	<version>1.0.9</version>
+	<version>3.9.1</version>
 	<packaging>jar</packaging>
 	<name>vertx-sql-assist</name>
-	<description>vertx-sql-assist is the SQL operation help tool of Vert.x, which provides the support of insert, delete, update, query, join, paging query, cooperate with SqlAssist help class, it basically does not need to write a line of SQL code.</description>
+	<description>vertx-sql-assist is the SQL operation help tool of Vert.x,
+		which provides the support of insert, delete, update, query, join,
+		paging query, cooperate with SqlAssist help class, it basically does
+		not need to write a line of SQL code.</description>
 	<url>https://mirrentools.org</url>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<vertx.version>3.8.5</vertx.version>
+		<vertx.version>3.9.1</vertx.version>
 	</properties>
 
 	<dependencies>
@@ -38,18 +41,6 @@
 		<dependency>
 			<groupId>io.vertx</groupId>
 			<artifactId>vertx-jdbc-client</artifactId>
-			<version>${vertx.version}</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>io.vertx</groupId>
-			<artifactId>vertx-mysql-client</artifactId>
-			<version>${vertx.version}</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>io.vertx</groupId>
-			<artifactId>vertx-pg-client</artifactId>
 			<version>${vertx.version}</version>
 			<scope>provided</scope>
 		</dependency>
