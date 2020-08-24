@@ -39,7 +39,7 @@ To use vertx-sql-assist, add the following dependency to the dependencies sectio
 * **update** Execution update result is number of affected rows
 * **batch** Batch Execution
 
-## SqlAssist方法说明
+## SqlAssist method description
 * **setOrders** Set OrderBy with SqlAssist.order(column,mode)
 * **setGroupBy** Set GroupBy
 * **setHaving** Set Having
