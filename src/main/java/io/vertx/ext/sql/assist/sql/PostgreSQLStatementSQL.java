@@ -3,7 +3,7 @@ package io.vertx.ext.sql.assist.sql;
 /**
  * SQLite通用SQL操作
  * 
- * @author <a href="http://szmirren.com">Mirren</a>
+ * @author <a href="http://mirrentools.org">Mirren</a>
  *
  * @param <T>
  */

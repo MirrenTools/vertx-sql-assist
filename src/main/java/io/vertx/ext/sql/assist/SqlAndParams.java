@@ -1,8 +1,8 @@
 package io.vertx.ext.sql.assist;
 
 import java.util.List;
-import java.util.ArrayList;
-import io.vertx.core.json.JsonArray;
+
+import io.vertx.sqlclient.Tuple;
 
 /**
  * 用于生成数据库语句时返回SQL语句与参数
@@ -14,11 +14,9 @@ public class SqlAndParams {
 	/** SQL语句 */
 	private String sql;
 	/** 参数 */
-	private JsonArray params;
-	/** 批量SQL语句 */
-	private List<String> batchSql;
+	private Tuple params;
 	/** 批量参数 */
-	private List<JsonArray> batchParams;
+	private List<Tuple> batchParams;
 	/** 生成语句是否成功 */
 	private boolean succeeded = true;
 	/**
@@ -55,22 +53,12 @@ public class SqlAndParams {
 	/**
 	 * 创建一个新的SqlAndParams
 	 * 
-	 * @param batchSql
-	 *          SQL语句集合
-	 */
-	public SqlAndParams(List<String> batchSql) {
-		super();
-		this.batchSql = batchSql;
-	}
-	/**
-	 * 创建一个新的SqlAndParams
-	 * 
 	 * @param sql
 	 *          SQL语句
 	 * @param params
 	 *          参数
 	 */
-	public SqlAndParams(String sql, JsonArray params) {
+	public SqlAndParams(String sql, Tuple params) {
 		super();
 		this.sql = sql;
 		this.params = params;
@@ -83,24 +71,12 @@ public class SqlAndParams {
 	 * @param batchParams
 	 *          参数集合
 	 */
-	public SqlAndParams(String sql, List<JsonArray> batchParams) {
+	public SqlAndParams(String sql, List<Tuple> batchParams) {
 		super();
 		this.sql = sql;
 		this.batchParams = batchParams;
 	}
-	/**
-	 * 创建一个新的SqlAndParams
-	 * 
-	 * @param batchSql
-	 *          SQL语句集
-	 * @param batchParams
-	 *          参数集合
-	 */
-	public SqlAndParams(List<String> batchSql, List<JsonArray> batchParams) {
-		super();
-		this.batchSql = batchSql;
-		this.batchParams = batchParams;
-	}
+
 	/**
 	 * 获得SQL语句,如果失败时则为错误语句
 	 * 
@@ -123,39 +99,23 @@ public class SqlAndParams {
 	 * 
 	 * @return
 	 */
-	public JsonArray getParams() {
+	public Tuple getParams() {
 		return params;
 	}
 	/**
 	 * 设置参数
 	 */
-	public SqlAndParams setParams(JsonArray params) {
+	public SqlAndParams setParams(Tuple params) {
 		this.params = params;
 		return this;
 	}
-	/**
-	 * 获取SQL语句集合
-	 * 
-	 * @return
-	 */
-	public List<String> getBatchSql() {
-		return batchSql;
-	}
-	/**
-	 * 设置SQL语句集合
-	 * 
-	 * @param batchSql
-	 */
-	public SqlAndParams setBatchSql(List<String> batchSql) {
-		this.batchSql = batchSql;
-		return this;
-	}
+
 	/**
 	 * 获取参数集合
 	 * 
 	 * @return
 	 */
-	public List<JsonArray> getBatchParams() {
+	public List<Tuple> getBatchParams() {
 		return batchParams;
 	}
 	/**
@@ -163,7 +123,7 @@ public class SqlAndParams {
 	 * 
 	 * @param batchParams
 	 */
-	public SqlAndParams setBatchParams(List<JsonArray> batchParams) {
+	public SqlAndParams setBatchParams(List<Tuple> batchParams) {
 		this.batchParams = batchParams;
 		return this;
 	}
@@ -185,31 +145,24 @@ public class SqlAndParams {
 		return this;
 	}
 
-	/**
-	 * 用于将SqlAndParams添加中的sql与params添加到当前对象的Batch中,既将多个普通SqlAndParams填充成一个Batch
-	 * SqlAndParams
-	 * 
-	 * @param sqlAndParams
-	 * @return
-	 */
-	public SqlAndParams addSqlAndParams(SqlAndParams... sqlp) {
-		if (batchSql == null) {
-			batchSql = new ArrayList<>();
-		}
-		if (batchParams == null) {
-			batchParams = new ArrayList<>();
-		}
-		for (SqlAndParams sp : sqlp) {
-			batchSql.add(sp.getSql());
-			batchParams.add(sp.getParams());
-		}
-		return this;
-	}
-
 	@Override
 	public String toString() {
-		return "SqlAndParams [sql=" + sql + ", params=" + params + ", batchSql=" + batchSql + ", batchParams=" + batchParams + ", succeeded="
-				+ succeeded + "]";
+		StringBuilder result = new StringBuilder();
+		result.append("SqlAndParams [succeeded=" + sql + ",");
+		result.append("sql=" + sql + ",");
+		result.append("params=" + params == null ? "null" : params.deepToString() + ",");
+		result.append("batchParams=");
+		if (batchParams == null) {
+			result.append("null");
+		} else {
+			result.append("(");
+			for (Tuple tuple : batchParams) {
+				result.append(tuple == null ? "null" : tuple.deepToString());
+			}
+			result.append(")");
+		}
+		result.append("]");
+		return result.toString();
 	}
 
 }

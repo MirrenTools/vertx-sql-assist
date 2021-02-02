@@ -4,9 +4,8 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.vertx.core.json.JsonArray;
-import io.vertx.core.logging.Logger;
-import io.vertx.core.logging.LoggerFactory;
+import io.vertx.core.impl.logging.Logger;
+import io.vertx.core.impl.logging.LoggerFactory;
 import io.vertx.ext.sql.assist.SQLStatement;
 import io.vertx.ext.sql.assist.SqlAndParams;
 import io.vertx.ext.sql.assist.SqlAssist;
@@ -15,16 +14,16 @@ import io.vertx.ext.sql.assist.SqlWhereCondition;
 import io.vertx.ext.sql.assist.Table;
 import io.vertx.ext.sql.assist.TableColumn;
 import io.vertx.ext.sql.assist.TableId;
+import io.vertx.sqlclient.Tuple;
 
 /**
  * 抽象数据库操作语句,默认以MySQL标准来编写,如果其他数据库可以基础并重写不兼容的方法<br>
  * 通常不支持limit分页的数据库需要重写{@link #selectAllSQL(SqlAssist)}与{@link #selectByObjSQL(Object, String, String, boolean)}这两个方法
  * 
- * @author <a href="https://mirrentools.org/">Mirren</a>
+ * @author <a href="http://mirrentools.org">Mirren</a>
  * @param <T>
  */
 public abstract class AbstractStatementSQL implements SQLStatement {
-
 	/** 日志工具 */
 	private final Logger LOG = LoggerFactory.getLogger(AbstractStatementSQL.class);
 	/** 表的名称 */
@@ -174,31 +173,31 @@ public abstract class AbstractStatementSQL implements SQLStatement {
 	@Override
 	public SqlAndParams getCountSQL(SqlAssist assist) {
 		StringBuilder sql = new StringBuilder(String.format("select count(*) from %s ", getSqlTableName()));
-		JsonArray params = null;
+		Tuple params = null;
 		if (assist != null) {
 			if (assist.getJoinOrReference() != null) {
 				sql.append(assist.getJoinOrReference());
 			}
 			if (assist.getCondition() != null && assist.getCondition().size() > 0) {
+				params = Tuple.tuple();
 				List<SqlWhereCondition<?>> where = assist.getCondition();
-				params = new JsonArray();
 				sql.append(" where " + where.get(0).getRequire());
 				if (where.get(0).getValue() != null) {
-					params.add(where.get(0).getValue());
+					params.addValue(where.get(0).getValue());
 				}
 				if (where.get(0).getValues() != null) {
 					for (Object value : where.get(0).getValues()) {
-						params.add(value);
+						params.addValue(value);
 					}
 				}
 				for (int i = 1; i < where.size(); i++) {
 					sql.append(where.get(i).getRequire());
 					if (where.get(i).getValue() != null) {
-						params.add(where.get(i).getValue());
+						params.addValue(where.get(i).getValue());
 					}
 					if (where.get(i).getValues() != null) {
 						for (Object value : where.get(i).getValues()) {
-							params.add(value);
+							params.addValue(value);
 						}
 					}
 				}
@@ -228,30 +227,29 @@ public abstract class AbstractStatementSQL implements SQLStatement {
 			String column = assist.getResultColumn() == null ? getSqlResultColumns() : assist.getResultColumn();// 表的列名
 			// 初始化SQL语句
 			StringBuilder sql = new StringBuilder(String.format("select %s %s from %s", distinct, column, getSqlTableName()));
-			JsonArray params = null;// 参数
+			Tuple params = Tuple.tuple();// 参数
 			if (assist.getJoinOrReference() != null) {
 				sql.append(assist.getJoinOrReference());
 			}
 			if (assist.getCondition() != null && assist.getCondition().size() > 0) {
 				List<SqlWhereCondition<?>> where = assist.getCondition();
-				params = new JsonArray();
 				sql.append(" where " + where.get(0).getRequire());
 				if (where.get(0).getValue() != null) {
-					params.add(where.get(0).getValue());
+					params.addValue(where.get(0).getValue());
 				}
 				if (where.get(0).getValues() != null) {
 					for (Object value : where.get(0).getValues()) {
-						params.add(value);
+						params.addValue(value);
 					}
 				}
 				for (int i = 1; i < where.size(); i++) {
 					sql.append(where.get(i).getRequire());
 					if (where.get(i).getValue() != null) {
-						params.add(where.get(i).getValue());
+						params.addValue(where.get(i).getValue());
 					}
 					if (where.get(i).getValues() != null) {
 						for (Object value : where.get(i).getValues()) {
-							params.add(value);
+							params.addValue(value);
 						}
 					}
 				}
@@ -262,29 +260,25 @@ public abstract class AbstractStatementSQL implements SQLStatement {
 			if (assist.getHaving() != null) {
 				sql.append(" having " + assist.getHaving() + " ");
 				if (assist.getHavingValue() != null) {
-					if (params == null) {
-						params = new JsonArray();
+					for (Object value : assist.getHavingValue()) {
+						params.addValue(value);
 					}
-					params.addAll(assist.getHavingValue());
 				}
 			}
 			if (assist.getOrder() != null) {
 				sql.append(assist.getOrder());
 			}
 			if (assist.getRowSize() != null || assist.getStartRow() != null) {
-				if (params == null) {
-					params = new JsonArray();
-				}
 				if (assist.getStartRow() != null) {
 					sql.append(" LIMIT ?");
-					params.add(assist.getRowSize());
+					params.addValue(assist.getRowSize());
 				}
 				if (assist.getStartRow() != null) {
 					sql.append(" OFFSET ?");
-					params.add(assist.getStartRow());
+					params.addValue(assist.getStartRow());
 				}
 			}
-			SqlAndParams result = new SqlAndParams(sql.toString(), params);
+			SqlAndParams result = new SqlAndParams(sql.toString(), (params.size() <= 0 ? null : params));
 			if (LOG.isDebugEnabled()) {
 				LOG.debug("SelectAllSQL : " + result.toString());
 			}
@@ -296,9 +290,7 @@ public abstract class AbstractStatementSQL implements SQLStatement {
 	public <S> SqlAndParams selectByIdSQL(S primaryValue, String resultColumns, String joinOrReference) {
 		String sql = String.format("select %s from %s %s where %s = ? ", (resultColumns == null ? getSqlResultColumns() : resultColumns),
 				getSqlTableName(), (joinOrReference == null ? "" : joinOrReference), getSqlPrimaryId());
-		JsonArray params = new JsonArray();
-		params.add(primaryValue);
-		SqlAndParams result = new SqlAndParams(sql, params);
+		SqlAndParams result = new SqlAndParams(sql, Tuple.of(primaryValue));
 		if (LOG.isDebugEnabled()) {
 			LOG.debug("selectByIdSQL : " + result.toString());
 		}
@@ -310,7 +302,7 @@ public abstract class AbstractStatementSQL implements SQLStatement {
 		StringBuilder sql = new StringBuilder(
 				String.format("select %s from %s %s ", (resultColumns == null ? getSqlResultColumns() : resultColumns), getSqlTableName(),
 						(joinOrReference == null ? "" : joinOrReference)));
-		JsonArray params = null;
+		Tuple params = Tuple.tuple();
 		boolean isFrist = true;
 		List<SqlPropertyValue<?>> propertyValue;
 		try {
@@ -322,20 +314,18 @@ public abstract class AbstractStatementSQL implements SQLStatement {
 			SqlPropertyValue<?> pv = propertyValue.get(i);
 			if (pv.getValue() != null) {
 				if (isFrist) {
-					params = new JsonArray();
 					sql.append(String.format("where %s = ? ", pv.getName()));
-					params.add(pv.getValue());
 					isFrist = false;
 				} else {
 					sql.append(String.format("and %s = ? ", pv.getName()));
-					params.add(pv.getValue());
 				}
+				params.addValue(pv.getValue());
 			}
 		}
 		if (single) {
 			sql.append(" LIMIT 1");
 		}
-		SqlAndParams result = new SqlAndParams(sql.toString(), params);
+		SqlAndParams result = new SqlAndParams(sql.toString(), (params.size() <= 0 ? null : params));
 		if (LOG.isDebugEnabled()) {
 			LOG.debug("selectByObjSQL : " + result.toString());
 		}
@@ -344,7 +334,7 @@ public abstract class AbstractStatementSQL implements SQLStatement {
 
 	@Override
 	public <T> SqlAndParams insertAllSQL(T obj) {
-		JsonArray params = null;
+		Tuple params = Tuple.tuple();
 		StringBuilder tempColumn = null;
 		StringBuilder tempValues = null;
 		List<SqlPropertyValue<?>> propertyValue;
@@ -357,19 +347,14 @@ public abstract class AbstractStatementSQL implements SQLStatement {
 			if (tempColumn == null) {
 				tempColumn = new StringBuilder(pv.getName());
 				tempValues = new StringBuilder("?");
-				params = new JsonArray();
 			} else {
 				tempColumn.append("," + pv.getName());
 				tempValues.append(",?");
 			}
-			if (pv.getValue() != null) {
-				params.add(pv.getValue());
-			} else {
-				params.addNull();
-			}
+			params.addValue(pv.getValue());
 		}
 		String sql = String.format("insert into %s (%s) values (%s) ", getSqlTableName(), tempColumn, tempValues);
-		SqlAndParams result = new SqlAndParams(sql.toString(), params);
+		SqlAndParams result = new SqlAndParams(sql.toString(), (params.size() <= 0 ? null : params));
 		if (LOG.isDebugEnabled()) {
 			LOG.debug("insertAllSQL : " + result.toString());
 		}
@@ -378,7 +363,7 @@ public abstract class AbstractStatementSQL implements SQLStatement {
 
 	@Override
 	public <T> SqlAndParams insertNonEmptySQL(T obj) {
-		JsonArray params = null;
+		Tuple params = Tuple.tuple();
 		StringBuilder tempColumn = null;
 		StringBuilder tempValues = null;
 		List<SqlPropertyValue<?>> propertyValue;
@@ -392,16 +377,18 @@ public abstract class AbstractStatementSQL implements SQLStatement {
 				if (tempColumn == null) {
 					tempColumn = new StringBuilder(pv.getName());
 					tempValues = new StringBuilder("?");
-					params = new JsonArray();
 				} else {
 					tempColumn.append("," + pv.getName());
 					tempValues.append(",?");
 				}
-				params.add(pv.getValue());
+				params.addValue(pv.getValue());
 			}
 		}
+		if (tempColumn == null || tempValues == null) {
+			return new SqlAndParams(false, "The column or value is null");
+		}
 		String sql = String.format("insert into %s (%s) values (%s) ", getSqlTableName(), tempColumn, tempValues);
-		SqlAndParams result = new SqlAndParams(sql, params);
+		SqlAndParams result = new SqlAndParams(sql, (params.size() <= 0 ? null : params));
 		if (LOG.isDebugEnabled()) {
 			LOG.debug("insertNonEmptySQL : " + result.toString());
 		}
@@ -415,7 +402,7 @@ public abstract class AbstractStatementSQL implements SQLStatement {
 		}
 		StringBuilder tempColumn = null;
 		StringBuilder tempValues = null;
-		JsonArray param0 = new JsonArray();
+		Tuple param0 = Tuple.tuple();
 		List<SqlPropertyValue<?>> propertyValue;
 		try {
 			propertyValue = getPropertyValue(list.get(0));
@@ -430,12 +417,12 @@ public abstract class AbstractStatementSQL implements SQLStatement {
 				tempColumn.append("," + pv.getName());
 				tempValues.append(",?");
 			}
-			param0.add(pv.getValue());
+			param0.addValue(pv.getValue());
 		}
-		List<JsonArray> params = new ArrayList<>();
+		List<Tuple> params = new ArrayList<>();
 		params.add(param0);
 		for (int i = 1; i < list.size(); i++) {
-			JsonArray paramx = new JsonArray();
+			Tuple paramx = Tuple.tuple();
 			List<SqlPropertyValue<?>> propertyValue1;
 			try {
 				propertyValue1 = getPropertyValue(list.get(i));
@@ -443,11 +430,10 @@ public abstract class AbstractStatementSQL implements SQLStatement {
 				return new SqlAndParams(false, " Get SqlPropertyValue failed: " + e.getMessage());
 			}
 			for (SqlPropertyValue<?> pv : propertyValue1) {
-				paramx.add(pv.getValue());
+				paramx.addValue(pv.getValue());
 			}
 			params.add(paramx);
 		}
-
 		String sql = String.format("insert into %s (%s) values (%s) ", getSqlTableName(), tempColumn, tempValues);
 		SqlAndParams qp = new SqlAndParams(sql, params);
 		if (LOG.isDebugEnabled()) {
@@ -457,7 +443,7 @@ public abstract class AbstractStatementSQL implements SQLStatement {
 	}
 
 	@Override
-	public SqlAndParams insertBatchSQL(List<String> columns, List<JsonArray> params) {
+	public SqlAndParams insertBatchSQL(List<String> columns, List<Tuple> params) {
 		if ((columns == null || columns.isEmpty()) || (params == null || params.isEmpty())) {
 			return new SqlAndParams(false, "The columns and params can not be null or empty");
 		}
@@ -482,7 +468,7 @@ public abstract class AbstractStatementSQL implements SQLStatement {
 
 	@Override
 	public <T> SqlAndParams replaceSQL(T obj) {
-		JsonArray params = null;
+		Tuple params = Tuple.tuple();
 		StringBuilder tempColumn = null;
 		StringBuilder tempValues = null;
 		List<SqlPropertyValue<?>> propertyValue;
@@ -496,16 +482,18 @@ public abstract class AbstractStatementSQL implements SQLStatement {
 				if (tempColumn == null) {
 					tempColumn = new StringBuilder(pv.getName());
 					tempValues = new StringBuilder("?");
-					params = new JsonArray();
 				} else {
 					tempColumn.append("," + pv.getName());
 					tempValues.append(",?");
 				}
-				params.add(pv.getValue());
+				params.addValue(pv.getValue());
 			}
 		}
+		if (tempColumn == null || tempValues == null) {
+			return new SqlAndParams(false, "The column or value is null");
+		}
 		String sql = String.format("replace into %s (%s) values (%s) ", getSqlTableName(), tempColumn, tempValues);
-		SqlAndParams result = new SqlAndParams(sql.toString(), params);
+		SqlAndParams result = new SqlAndParams(sql.toString(), (params.size() <= 0 ? null : params));
 		if (LOG.isDebugEnabled()) {
 			LOG.debug("replaceSQL : " + result.toString());
 		}
@@ -517,7 +505,7 @@ public abstract class AbstractStatementSQL implements SQLStatement {
 		if (getSqlPrimaryId() == null) {
 			return new SqlAndParams(false, "there is no primary key in your SQL statement");
 		}
-		JsonArray params = null;
+		Tuple params = Tuple.tuple();
 		StringBuilder tempColumn = null;
 		Object tempIdValue = null;
 		List<SqlPropertyValue<?>> propertyValue;
@@ -532,21 +520,16 @@ public abstract class AbstractStatementSQL implements SQLStatement {
 				continue;
 			}
 			if (tempColumn == null) {
-				params = new JsonArray();
 				tempColumn = new StringBuilder(pv.getName() + " = ? ");
 			} else {
 				tempColumn.append(", " + pv.getName() + " = ? ");
 			}
-			if (pv.getValue() != null) {
-				params.add(pv.getValue());
-			} else {
-				params.addNull();
-			}
+			params.addValue(pv.getValue());
 		}
 		if (tempIdValue == null) {
 			return new SqlAndParams(false, "there is no primary key in your SQL statement");
 		}
-		params.add(tempIdValue);
+		params.addValue(tempIdValue);
 		String sql = String.format("update %s set %s where %s = ? ", getSqlTableName(), tempColumn, getSqlPrimaryId());
 		SqlAndParams result = new SqlAndParams(sql, params);
 		if (LOG.isDebugEnabled()) {
@@ -560,7 +543,7 @@ public abstract class AbstractStatementSQL implements SQLStatement {
 		if (assist == null || assist.getCondition() == null || assist.getCondition().size() < 1) {
 			return new SqlAndParams(false, "SqlAssist or SqlAssist.condition is null");
 		}
-		JsonArray params = null;
+		Tuple params = Tuple.tuple();
 		StringBuilder tempColumn = null;
 		List<SqlPropertyValue<?>> propertyValue;
 		try {
@@ -570,35 +553,30 @@ public abstract class AbstractStatementSQL implements SQLStatement {
 		}
 		for (SqlPropertyValue<?> pv : propertyValue) {
 			if (tempColumn == null) {
-				params = new JsonArray();
 				tempColumn = new StringBuilder(pv.getName() + " = ? ");
 			} else {
 				tempColumn.append(", " + pv.getName() + " = ? ");
 			}
-			if (pv.getValue() != null) {
-				params.add(pv.getValue());
-			} else {
-				params.addNull();
-			}
+			params.addValue(pv.getValue());
 		}
 		List<SqlWhereCondition<?>> where = assist.getCondition();
 		StringBuilder whereStr = new StringBuilder(" where " + where.get(0).getRequire());
 		if (where.get(0).getValue() != null) {
-			params.add(where.get(0).getValue());
+			params.addValue(where.get(0).getValue());
 		}
 		if (where.get(0).getValues() != null) {
 			for (Object value : where.get(0).getValues()) {
-				params.add(value);
+				params.addValue(value);
 			}
 		}
 		for (int i = 1; i < where.size(); i++) {
 			whereStr.append(where.get(i).getRequire());
 			if (where.get(i).getValue() != null) {
-				params.add(where.get(i).getValue());
+				params.addValue(where.get(i).getValue());
 			}
 			if (where.get(i).getValues() != null) {
 				for (Object value : where.get(i).getValues()) {
-					params.add(value);
+					params.addValue(value);
 				}
 			}
 		}
@@ -618,7 +596,7 @@ public abstract class AbstractStatementSQL implements SQLStatement {
 			}
 			return new SqlAndParams(false, "there is no primary key in your SQL statement");
 		}
-		JsonArray params = null;
+		Tuple params = Tuple.tuple();
 		StringBuilder tempColumn = null;
 		Object tempIdValue = null;
 		List<SqlPropertyValue<?>> propertyValue;
@@ -634,12 +612,11 @@ public abstract class AbstractStatementSQL implements SQLStatement {
 			}
 			if (pv.getValue() != null) {
 				if (tempColumn == null) {
-					params = new JsonArray();
 					tempColumn = new StringBuilder(pv.getName() + " = ? ");
 				} else {
 					tempColumn.append(", " + pv.getName() + " = ? ");
 				}
-				params.add(pv.getValue());
+				params.addValue(pv.getValue());
 			}
 		}
 		if (tempColumn == null || tempIdValue == null) {
@@ -648,7 +625,7 @@ public abstract class AbstractStatementSQL implements SQLStatement {
 			}
 			return new SqlAndParams(false, "there is no set update value or no primary key in your SQL statement");
 		}
-		params.add(tempIdValue);
+		params.addValue(tempIdValue);
 		String sql = String.format("update %s set %s where %s = ? ", getSqlTableName(), tempColumn, getSqlPrimaryId());
 		SqlAndParams result = new SqlAndParams(sql, params);
 		if (LOG.isDebugEnabled()) {
@@ -662,7 +639,7 @@ public abstract class AbstractStatementSQL implements SQLStatement {
 		if (assist == null || assist.getCondition() == null || assist.getCondition().size() < 1) {
 			return new SqlAndParams(false, "SqlAssist or SqlAssist.condition is null");
 		}
-		JsonArray params = null;
+		Tuple params = Tuple.tuple();
 		StringBuilder tempColumn = null;
 		List<SqlPropertyValue<?>> propertyValue;
 		try {
@@ -673,14 +650,14 @@ public abstract class AbstractStatementSQL implements SQLStatement {
 		for (SqlPropertyValue<?> pv : propertyValue) {
 			if (pv.getValue() != null) {
 				if (tempColumn == null) {
-					params = new JsonArray();
 					tempColumn = new StringBuilder(pv.getName() + " = ? ");
 				} else {
 					tempColumn.append(", " + pv.getName() + " = ? ");
 				}
-				params.add(pv.getValue());
+				params.addValue(pv.getValue());
 			}
 		}
+
 		if (tempColumn == null) {
 			return new SqlAndParams(false, "The object has no value");
 		}
@@ -688,21 +665,21 @@ public abstract class AbstractStatementSQL implements SQLStatement {
 		List<SqlWhereCondition<?>> where = assist.getCondition();
 		StringBuilder whereStr = new StringBuilder(" where " + where.get(0).getRequire());
 		if (where.get(0).getValue() != null) {
-			params.add(where.get(0).getValue());
+			params.addValue(where.get(0).getValue());
 		}
 		if (where.get(0).getValues() != null) {
 			for (Object value : where.get(0).getValues()) {
-				params.add(value);
+				params.addValue(value);
 			}
 		}
 		for (int i = 1; i < where.size(); i++) {
 			whereStr.append(where.get(i).getRequire());
 			if (where.get(i).getValue() != null) {
-				params.add(where.get(i).getValue());
+				params.addValue(where.get(i).getValue());
 			}
 			if (where.get(i).getValues() != null) {
 				for (Object value : where.get(i).getValues()) {
-					params.add(value);
+					params.addValue(value);
 				}
 			}
 		}
@@ -729,9 +706,7 @@ public abstract class AbstractStatementSQL implements SQLStatement {
 			setStr.append(", " + columns.get(i) + " = null ");
 		}
 		String sql = String.format("update %s set %s where %s = ? ", getSqlTableName(), setStr.toString(), getSqlPrimaryId());
-		JsonArray params = new JsonArray();
-		params.add(primaryValue);
-		SqlAndParams result = new SqlAndParams(sql, params);
+		SqlAndParams result = new SqlAndParams(sql, Tuple.of(primaryValue));
 		if (LOG.isDebugEnabled()) {
 			LOG.debug("updateSetNullById : " + result.toString());
 		}
@@ -751,25 +726,25 @@ public abstract class AbstractStatementSQL implements SQLStatement {
 		for (int i = 1; i < columns.size(); i++) {
 			setStr.append(", " + columns.get(i) + " = null ");
 		}
-		JsonArray params = new JsonArray();
+		Tuple params = Tuple.tuple();
 		List<SqlWhereCondition<?>> where = assist.getCondition();
 		StringBuilder whereStr = new StringBuilder(" where " + where.get(0).getRequire());
 		if (where.get(0).getValue() != null) {
-			params.add(where.get(0).getValue());
+			params.addValue(where.get(0).getValue());
 		}
 		if (where.get(0).getValues() != null) {
 			for (Object value : where.get(0).getValues()) {
-				params.add(value);
+				params.addValue(value);
 			}
 		}
 		for (int i = 1; i < where.size(); i++) {
 			whereStr.append(where.get(i).getRequire());
 			if (where.get(i).getValue() != null) {
-				params.add(where.get(i).getValue());
+				params.addValue(where.get(i).getValue());
 			}
 			if (where.get(i).getValues() != null) {
 				for (Object value : where.get(i).getValues()) {
-					params.add(value);
+					params.addValue(value);
 				}
 			}
 		}
@@ -787,9 +762,7 @@ public abstract class AbstractStatementSQL implements SQLStatement {
 			return new SqlAndParams(false, "there is no primary key in your SQL statement");
 		}
 		String sql = String.format("delete from %s where %s = ? ", getSqlTableName(), getSqlPrimaryId());
-		JsonArray params = new JsonArray();
-		params.add(primaryValue);
-		SqlAndParams result = new SqlAndParams(sql, params);
+		SqlAndParams result = new SqlAndParams(sql, Tuple.of(primaryValue));
 		if (LOG.isDebugEnabled()) {
 			LOG.debug("deleteByIdSQL : " + result.toString());
 		}
@@ -802,24 +775,24 @@ public abstract class AbstractStatementSQL implements SQLStatement {
 			return new SqlAndParams(false, "SqlAssist or SqlAssist.condition is null");
 		}
 		List<SqlWhereCondition<?>> where = assist.getCondition();
-		JsonArray params = new JsonArray();
+		Tuple params = Tuple.tuple();
 		StringBuilder whereStr = new StringBuilder(" where " + where.get(0).getRequire());
 		if (where.get(0).getValue() != null) {
-			params.add(where.get(0).getValue());
+			params.addValue(where.get(0).getValue());
 		}
 		if (where.get(0).getValues() != null) {
 			for (Object value : where.get(0).getValues()) {
-				params.add(value);
+				params.addValue(value);
 			}
 		} ;
 		for (int i = 1; i < where.size(); i++) {
 			whereStr.append(where.get(i).getRequire());
 			if (where.get(i).getValue() != null) {
-				params.add(where.get(i).getValue());
+				params.addValue(where.get(i).getValue());
 			}
 			if (where.get(i).getValues() != null) {
 				for (Object value : where.get(i).getValues()) {
-					params.add(value);
+					params.addValue(value);
 				}
 			}
 		}

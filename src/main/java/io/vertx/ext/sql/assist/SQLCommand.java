@@ -5,25 +5,16 @@ import java.util.List;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
-import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import io.vertx.sqlclient.Tuple;
 
 /**
  * SQL可执行命令
  * 
- * @author <a href="http://szmirren.com">Mirren</a>
+ * @author <a href="http://mirrentools.org">Mirren</a>
  *
  */
 public interface SQLCommand {
-	/**
-	 * 获得数据总行数
-	 * 
-	 * @param handler
-	 *          返回数据总行数
-	 */
-	default void getCount(Handler<AsyncResult<Long>> handler) {
-		getCount(null, handler);
-	}
 	/**
 	 * 获取数据总行数
 	 * 
@@ -34,15 +25,6 @@ public interface SQLCommand {
 	 */
 	void getCount(SqlAssist assist, Handler<AsyncResult<Long>> handler);
 
-	/**
-	 * 查询所有数据
-	 * 
-	 * @param handler
-	 *          结果集
-	 */
-	default void selectAll(Handler<AsyncResult<List<JsonObject>>> handler) {
-		selectAll(null, handler);
-	}
 	/**
 	 * 通过查询工具查询所有数据
 	 * 
@@ -100,32 +82,6 @@ public interface SQLCommand {
 	};
 
 	/**
-	 * 通过ID查询出数据
-	 * 
-	 * @param primaryValue
-	 *          主键值
-	 * @param handler
-	 *          返回结果:如果查询得到返回JsonObject如果查询不到返回null
-	 */
-	default <S> void selectById(S primaryValue, Handler<AsyncResult<JsonObject>> handler) {
-		selectById(primaryValue, null, null, handler);
-	}
-
-	/**
-	 * 通过ID查询出数据
-	 * 
-	 * @param primaryValue
-	 *          主键值
-	 * @param resultColumns
-	 *          自定义返回列
-	 * @param handler
-	 *          返回结果:如果查询得到返回JsonObject如果查询不到返回null
-	 */
-	default <S> void selectById(S primaryValue, String resultColumns, Handler<AsyncResult<JsonObject>> handler) {
-		selectById(primaryValue, resultColumns, null, handler);
-	}
-
-	/**
 	 * 通过ID查询出数据,并自定义返回列
 	 * 
 	 * @param primaryValue
@@ -138,32 +94,7 @@ public interface SQLCommand {
 	 *          返回结果:如果查询得到返回JsonObject如果查询不到返回null
 	 */
 	<S> void selectById(S primaryValue, String resultColumns, String joinOrReference, Handler<AsyncResult<JsonObject>> handler);
-	/**
-	 * 将对象属性不为null的属性作为条件查询出数据,只取查询出来的第一条数据;
-	 * 
-	 * @param obj
-	 *          对象
-	 * 
-	 * @param handler
-	 *          结果:如果存在返回JsonObject,不存在返回null
-	 */
-	default <T> void selectSingleByObj(T obj, Handler<AsyncResult<JsonObject>> handler) {
-		selectSingleByObj(obj, null, null, handler);
-	}
-	/**
-	 * 将对象属性不为null的属性作为条件查询出数据,只取查询出来的第一条数据
-	 * 
-	 * @param obj
-	 *          对象
-	 * @param resultColumns
-	 *          自定义返回列
-	 * 
-	 * @param handler
-	 *          结果:如果存在返回JsonObject,不存在返回null
-	 */
-	default <T> void selectSingleByObj(T obj, String resultColumns, Handler<AsyncResult<JsonObject>> handler) {
-		selectSingleByObj(obj, resultColumns, null, handler);
-	}
+
 	/**
 	 * 将对象属性不为null的属性作为条件查询出数据,只取查询出来的第一条数据
 	 * 
@@ -177,32 +108,7 @@ public interface SQLCommand {
 	 *          结果:如果存在返回JsonObject,不存在返回null
 	 */
 	<T> void selectSingleByObj(T obj, String resultColumns, String joinOrReference, Handler<AsyncResult<JsonObject>> handler);
-	/**
-	 * 将对象属性不为null的属性作为条件查询出数据
-	 * 
-	 * @param obj
-	 *          对象
-	 * 
-	 * @param handler
-	 *          返回结果集
-	 */
-	default <T> void selectByObj(T obj, Handler<AsyncResult<List<JsonObject>>> handler) {
-		selectByObj(obj, null, null, handler);
-	}
-	/**
-	 * 将对象属性不为null的属性作为条件查询出数据
-	 * 
-	 * @param obj
-	 *          对象
-	 * @param resultColumns
-	 *          自定义返回列
-	 * 
-	 * @param handler
-	 *          返回结果集
-	 */
-	default <T> void selectByObj(T obj, String resultColumns, Handler<AsyncResult<List<JsonObject>>> handler) {
-		selectByObj(obj, resultColumns, null, handler);
-	}
+
 	/**
 	 * 将对象属性不为null的属性作为条件查询出数据
 	 * 
@@ -236,6 +142,16 @@ public interface SQLCommand {
 	 *          返回操作结果
 	 */
 	<T> void insertNonEmpty(T obj, Handler<AsyncResult<Integer>> handler);
+
+	/**
+	 * 插入一个对象,只插入对象中值不为null的属性
+	 * 
+	 * @param obj
+	 *          对象
+	 * @param handler
+	 */
+	<T> void insertNonEmptyGeneratedKeys(T obj, Handler<AsyncResult<Object>> handler);
+
 	/**
 	 * 批量添加全部所有字段
 	 * 
@@ -244,7 +160,7 @@ public interface SQLCommand {
 	 * @param handler
 	 *          成功返回受影响的行数,如果对象为null或空则返回0
 	 */
-	<T> void insertBatch(List<T> list, Handler<AsyncResult<Long>> handler);
+	<T> void insertBatch(List<T> list, Handler<AsyncResult<Integer>> handler);
 	/**
 	 * 批量添加自定字段
 	 * 
@@ -255,7 +171,7 @@ public interface SQLCommand {
 	 * @param handler
 	 *          成功返回受影响的行数,如果字段或字段参数为null或空则返回0
 	 */
-	void insertBatch(List<String> columns, List<JsonArray> params, Handler<AsyncResult<Long>> handler);
+	void insertBatch(List<String> columns, List<Tuple> params, Handler<AsyncResult<Integer>> handler);
 
 	/**
 	 * 插入一个对象,如果该对象不存在就新建如果该对象已经存在就更新

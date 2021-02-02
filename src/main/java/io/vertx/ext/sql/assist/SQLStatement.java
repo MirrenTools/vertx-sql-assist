@@ -3,8 +3,8 @@ package io.vertx.ext.sql.assist;
 import java.lang.reflect.Constructor;
 import java.util.List;
 
-import io.vertx.core.json.JsonArray;
 import io.vertx.ext.sql.assist.sql.MySQLStatementSQL;
+import io.vertx.sqlclient.Tuple;
 
 /**
  * SQL执行语句
@@ -147,7 +147,7 @@ public interface SQLStatement {
 	 * @param params
 	 *          字段对应的参数示例:[["id","name"],["id","name"]...]
 	 */
-	SqlAndParams insertBatchSQL(List<String> columns, List<JsonArray> params);
+	SqlAndParams insertBatchSQL(List<String> columns, List<Tuple> params);
 
 	/**
 	 * 插入一个对象,如果该对象不存在就新建如果该对象已经存在就更新

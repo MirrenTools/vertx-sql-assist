@@ -5,8 +5,11 @@ import java.util.List;
 
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
-import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import io.vertx.sqlclient.PropertyKind;
+import io.vertx.sqlclient.Row;
+import io.vertx.sqlclient.RowSet;
+import io.vertx.sqlclient.Tuple;
 
 /**
  * 通用的数据库操作客户端的默认实现,
@@ -63,18 +66,18 @@ public abstract class CommonSQL<E, C> implements CommonSQLClinet<C> {
 	}
 
 	@Override
+	public void execute(SqlAndParams qp, Handler<AsyncResult<RowSet<Row>>> handler) {
+		execute.execute(qp, handler);
+	}
+
+	@Override
 	public void queryAsObj(SqlAndParams qp, Handler<AsyncResult<JsonObject>> handler) {
 		execute.queryAsObj(qp, handler);
 	}
 
 	@Override
-	public void queryAsListObj(SqlAndParams qp, Handler<AsyncResult<List<JsonObject>>> handler) {
-		execute.queryAsListObj(qp, handler);
-	}
-
-	@Override
-	public void queryAsListArray(SqlAndParams qp, Handler<AsyncResult<List<JsonArray>>> handler) {
-		execute.queryAsListArray(qp, handler);
+	public void queryAsList(SqlAndParams qp, Handler<AsyncResult<List<JsonObject>>> handler) {
+		execute.queryAsList(qp, handler);
 	}
 
 	@Override
@@ -83,23 +86,18 @@ public abstract class CommonSQL<E, C> implements CommonSQLClinet<C> {
 	}
 
 	@Override
-	public void batch(SqlAndParams qp, Handler<AsyncResult<List<Integer>>> handler) {
-		execute.batch(qp, handler);
+	public void updateResult(SqlAndParams qp, PropertyKind<Row> property, Handler<AsyncResult<Row>> handler) {
+		execute.updateResult(qp, property, handler);
 	}
 
 	@Override
-	public void getCount(Handler<AsyncResult<Long>> handler) {
-		command.getCount(handler);
+	public void batch(SqlAndParams qp, Handler<AsyncResult<Integer>> handler) {
+		execute.batch(qp, handler);
 	}
 
 	@Override
 	public void getCount(SqlAssist assist, Handler<AsyncResult<Long>> handler) {
 		command.getCount(assist, handler);
-	}
-
-	@Override
-	public void selectAll(Handler<AsyncResult<List<JsonObject>>> handler) {
-		command.selectAll(handler);
 	}
 
 	@Override
@@ -113,43 +111,13 @@ public abstract class CommonSQL<E, C> implements CommonSQLClinet<C> {
 	}
 
 	@Override
-	public <S> void selectById(S primaryValue, Handler<AsyncResult<JsonObject>> handler) {
-		command.selectById(primaryValue, handler);
-	}
-
-	@Override
-	public <S> void selectById(S primaryValue, String resultColumns, Handler<AsyncResult<JsonObject>> handler) {
-		command.selectById(primaryValue, resultColumns, handler);
-	}
-
-	@Override
 	public <S> void selectById(S primaryValue, String resultColumns, String joinOrReference, Handler<AsyncResult<JsonObject>> handler) {
 		command.selectById(primaryValue, resultColumns, joinOrReference, handler);
 	}
 
 	@Override
-	public <T> void selectSingleByObj(T obj, Handler<AsyncResult<JsonObject>> handler) {
-		command.selectSingleByObj(obj, handler);
-	}
-
-	@Override
-	public <T> void selectSingleByObj(T obj, String resultColumns, Handler<AsyncResult<JsonObject>> handler) {
-		command.selectSingleByObj(obj, resultColumns, handler);
-	}
-
-	@Override
 	public <T> void selectSingleByObj(T obj, String resultColumns, String joinOrReference, Handler<AsyncResult<JsonObject>> handler) {
 		command.selectSingleByObj(obj, resultColumns, joinOrReference, handler);
-	}
-
-	@Override
-	public <T> void selectByObj(T obj, Handler<AsyncResult<List<JsonObject>>> handler) {
-		command.selectByObj(obj, handler);
-	}
-
-	@Override
-	public <T> void selectByObj(T obj, String resultColumns, Handler<AsyncResult<List<JsonObject>>> handler) {
-		command.selectByObj(obj, resultColumns, handler);
 	}
 
 	@Override
@@ -168,12 +136,17 @@ public abstract class CommonSQL<E, C> implements CommonSQLClinet<C> {
 	}
 
 	@Override
-	public <T> void insertBatch(List<T> list, Handler<AsyncResult<Long>> handler) {
+	public <T> void insertNonEmptyGeneratedKeys(T obj, Handler<AsyncResult<Object>> handler) {
+		command.insertNonEmptyGeneratedKeys(obj, handler);
+	}
+
+	@Override
+	public <T> void insertBatch(List<T> list, Handler<AsyncResult<Integer>> handler) {
 		command.insertBatch(list, handler);
 	}
 
 	@Override
-	public void insertBatch(List<String> columns, List<JsonArray> params, Handler<AsyncResult<Long>> handler) {
+	public void insertBatch(List<String> columns, List<Tuple> params, Handler<AsyncResult<Integer>> handler) {
 		command.insertBatch(columns, params, handler);
 	}
 
