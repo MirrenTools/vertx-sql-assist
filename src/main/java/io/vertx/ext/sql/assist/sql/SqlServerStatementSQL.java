@@ -45,7 +45,7 @@ public class SqlServerStatementSQL extends AbstractStatementSQL {
 	public SqlAndParams selectAllSQL(SqlAssist assist) {
 		if (assist != null && assist.getRowSize() != null) {
 			String distinct = assist.getDistinct() == null ? "" : assist.getDistinct();// 去重语句
-			String column = assist.getResultColumn() == null ? getSqlResultColumns() : assist.getResultColumn();// 表的列名
+			String column = assist.getResultColumn() == null ? resultColumns() : assist.getResultColumn();// 表的列名
 			StringBuilder sql = new StringBuilder();
 			// SQL语句添加分页
 			sql.append("select * from ( ");
@@ -53,9 +53,9 @@ public class SqlServerStatementSQL extends AbstractStatementSQL {
 			if (assist.getOrder() != null) {
 				sql.append(assist.getOrder());
 			} else {
-				sql.append(getRowNumberOverSQL(getSqlPrimaryId()));
+				sql.append(getRowNumberOverSQL(primaryId()));
 			}
-			sql.append(String.format(") AS tt_row_index from %s ", getSqlTableName()));
+			sql.append(String.format(") AS tt_row_index from %s ", tableName()));
 			Tuple params = Tuple.tuple();// 参数
 			if (assist.getJoinOrReference() != null) {
 				sql.append(assist.getJoinOrReference());
@@ -113,8 +113,8 @@ public class SqlServerStatementSQL extends AbstractStatementSQL {
 	@Override
 	public <T> SqlAndParams selectByObjSQL(T obj, String resultColumns, String joinOrReference, boolean single) {
 		StringBuilder sql = new StringBuilder(
-				String.format("select %s %s from %s %s ", (single ? "top 1" : ""), (resultColumns == null ? getSqlResultColumns() : resultColumns),
-						getSqlTableName(), (joinOrReference == null ? "" : joinOrReference)));
+				String.format("select %s %s from %s %s ", (single ? "top 1" : ""), (resultColumns == null ? resultColumns() : resultColumns),
+																									tableName(), (joinOrReference == null ? "" : joinOrReference)));
 		Tuple params = Tuple.tuple();
 		boolean isFrist = true;
 		List<SqlPropertyValue<?>> propertyValue;

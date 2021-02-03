@@ -35,54 +35,59 @@ public abstract class AbstractStatementSQL implements SQLStatement {
 
 	public AbstractStatementSQL(Class<?> entity) {
 		super();
-		Table table = entity.getAnnotation(Table.class);
-		if (table == null || table.value().isEmpty()) {
-			throw new NullPointerException(entity.getName() + " no Table annotation ,you need to set @Table on the class");
-		}
-		this.sqlTableName = table.value();
-		boolean hasId = false;
-		boolean hasCol = false;
-		Field[] fields = entity.getDeclaredFields();
-		StringBuilder column = new StringBuilder();
-		for (Field field : fields) {
-			field.setAccessible(true);
-			TableId tableId = field.getAnnotation(TableId.class);
-			TableColumn tableCol = field.getAnnotation(TableColumn.class);
-			if (tableId == null && tableCol == null) {
-				continue;
+		if (tableName() == null) {
+			Table table = entity.getAnnotation(Table.class);
+			if (table == null || table.value().isEmpty()) {
+				throw new NullPointerException(entity.getName() + " no Table annotation ,you need to set @Table on the class");
 			}
-			if (tableId != null) {
-				if (tableId.value() == null || tableId.value().isEmpty()) {
+			this.sqlTableName = table.value();
+		}
+		if (primaryId() == null || resultColumns() == null) {
+			boolean hasId = false;
+			boolean hasCol = false;
+			Field[] fields = entity.getDeclaredFields();
+			StringBuilder column = new StringBuilder();
+			for (Field field : fields) {
+				field.setAccessible(true);
+				TableId tableId = field.getAnnotation(TableId.class);
+				TableColumn tableCol = field.getAnnotation(TableColumn.class);
+				if (tableId == null && tableCol == null) {
 					continue;
 				}
-				if (this.sqlPrimaryId != null) {
-					this.sqlPrimaryId += tableId.value();
+				if (tableId != null) {
+					if (tableId.value() == null || tableId.value().isEmpty()) {
+						continue;
+					}
+					if (this.sqlPrimaryId != null) {
+						this.sqlPrimaryId += tableId.value();
+					} else {
+						this.sqlPrimaryId = tableId.value();
+					}
+					hasId = true;
+					column.append("," + tableId.value());
+					if (tableId.alias() != null && !tableId.alias().isEmpty()) {
+						column.append(" AS \"" + tableId.alias() + "\"");
+					}
 				} else {
-					this.sqlPrimaryId = tableId.value();
+					if (tableCol == null) {
+						continue;
+					}
+					column.append("," + tableCol.value());
+					if (tableCol.alias() != null && !tableCol.alias().isEmpty()) {
+						column.append(" AS \"" + tableCol.alias() + "\"");
+					}
+					hasCol = true;
 				}
-				hasId = true;
-				column.append("," + tableId.value());
-				if (tableId.alias() != null && !tableId.alias().isEmpty()) {
-					column.append(" AS \"" + tableId.alias() + "\"");
-				}
-			} else {
-				if (tableCol == null) {
-					continue;
-				}
-				column.append("," + tableCol.value());
-				if (tableCol.alias() != null && !tableCol.alias().isEmpty()) {
-					column.append(" AS \"" + tableCol.alias() + "\"");
-				}
-				hasCol = true;
 			}
+			if (!hasId) {
+				throw new NullPointerException(entity.getName() + " no TableId annotation ,you need to set @TableId on the field");
+			}
+			if (!hasCol && !hasId) {
+				throw new NullPointerException(entity.getName() + " no TableColumn annotation ,you need to set @TableColumn on the field");
+			}
+			this.sqlResultColumns = column.substring(1);
 		}
-		if (!hasId) {
-			throw new NullPointerException(entity.getName() + " no TableId annotation ,you need to set @TableId on the field");
-		}
-		if (!hasCol && !hasId) {
-			throw new NullPointerException(entity.getName() + " no TableColumn annotation ,you need to set @TableColumn on the field");
-		}
-		this.sqlResultColumns = column.substring(1);
+
 	}
 
 	/**
@@ -90,19 +95,8 @@ public abstract class AbstractStatementSQL implements SQLStatement {
 	 * 
 	 * @return
 	 */
-	public String getSqlTableName() {
+	public String tableName() {
 		return sqlTableName;
-	}
-
-	/**
-	 * 设置表名称
-	 * 
-	 * @param sqlTableName
-	 * @return
-	 */
-	public AbstractStatementSQL setSqlTableName(String sqlTableName) {
-		this.sqlTableName = sqlTableName;
-		return this;
 	}
 
 	/**
@@ -110,19 +104,8 @@ public abstract class AbstractStatementSQL implements SQLStatement {
 	 * 
 	 * @return
 	 */
-	public String getSqlPrimaryId() {
+	public String primaryId() {
 		return sqlPrimaryId;
-	}
-
-	/**
-	 * 设置主键名称,当有多个主键时可以重写给方法设置以哪一个主键为主
-	 * 
-	 * @param sqlPrimaryId
-	 * @return
-	 */
-	public AbstractStatementSQL setSqlPrimaryId(String sqlPrimaryId) {
-		this.sqlPrimaryId = sqlPrimaryId;
-		return this;
 	}
 
 	/**
@@ -130,19 +113,8 @@ public abstract class AbstractStatementSQL implements SQLStatement {
 	 * 
 	 * @return
 	 */
-	public String getSqlResultColumns() {
+	public String resultColumns() {
 		return sqlResultColumns;
-	}
-
-	/**
-	 * 设置表返回列
-	 * 
-	 * @param sqlResultColumns
-	 * @return
-	 */
-	public AbstractStatementSQL setSqlResultColumns(String sqlResultColumns) {
-		this.sqlResultColumns = sqlResultColumns;
-		return this;
 	}
 
 	/**
@@ -172,7 +144,7 @@ public abstract class AbstractStatementSQL implements SQLStatement {
 
 	@Override
 	public SqlAndParams getCountSQL(SqlAssist assist) {
-		StringBuilder sql = new StringBuilder(String.format("select count(*) from %s ", getSqlTableName()));
+		StringBuilder sql = new StringBuilder(String.format("select count(*) from %s ", tableName()));
 		Tuple params = null;
 		if (assist != null) {
 			if (assist.getJoinOrReference() != null) {
@@ -217,16 +189,16 @@ public abstract class AbstractStatementSQL implements SQLStatement {
 	public SqlAndParams selectAllSQL(SqlAssist assist) {
 		// 如果Assist为空返回默认默认查询语句,反则根据Assist生成语句sql语句
 		if (assist == null) {
-			SqlAndParams result = new SqlAndParams(String.format("select %s from %s ", getSqlResultColumns(), getSqlTableName()));
+			SqlAndParams result = new SqlAndParams(String.format("select %s from %s ", resultColumns(), tableName()));
 			if (LOG.isDebugEnabled()) {
 				LOG.debug("SelectAllSQL : " + result.toString());
 			}
 			return result;
 		} else {
 			String distinct = assist.getDistinct() == null ? "" : assist.getDistinct();// 去重语句
-			String column = assist.getResultColumn() == null ? getSqlResultColumns() : assist.getResultColumn();// 表的列名
+			String column = assist.getResultColumn() == null ? resultColumns() : assist.getResultColumn();// 表的列名
 			// 初始化SQL语句
-			StringBuilder sql = new StringBuilder(String.format("select %s %s from %s", distinct, column, getSqlTableName()));
+			StringBuilder sql = new StringBuilder(String.format("select %s %s from %s", distinct, column, tableName()));
 			Tuple params = Tuple.tuple();// 参数
 			if (assist.getJoinOrReference() != null) {
 				sql.append(assist.getJoinOrReference());
@@ -288,8 +260,8 @@ public abstract class AbstractStatementSQL implements SQLStatement {
 
 	@Override
 	public <S> SqlAndParams selectByIdSQL(S primaryValue, String resultColumns, String joinOrReference) {
-		String sql = String.format("select %s from %s %s where %s = ? ", (resultColumns == null ? getSqlResultColumns() : resultColumns),
-				getSqlTableName(), (joinOrReference == null ? "" : joinOrReference), getSqlPrimaryId());
+		String sql = String.format("select %s from %s %s where %s = ? ", (resultColumns == null ? resultColumns() : resultColumns), tableName(),
+				(joinOrReference == null ? "" : joinOrReference), primaryId());
 		SqlAndParams result = new SqlAndParams(sql, Tuple.of(primaryValue));
 		if (LOG.isDebugEnabled()) {
 			LOG.debug("selectByIdSQL : " + result.toString());
@@ -299,9 +271,8 @@ public abstract class AbstractStatementSQL implements SQLStatement {
 
 	@Override
 	public <T> SqlAndParams selectByObjSQL(T obj, String resultColumns, String joinOrReference, boolean single) {
-		StringBuilder sql = new StringBuilder(
-				String.format("select %s from %s %s ", (resultColumns == null ? getSqlResultColumns() : resultColumns), getSqlTableName(),
-						(joinOrReference == null ? "" : joinOrReference)));
+		StringBuilder sql = new StringBuilder(String.format("select %s from %s %s ", (resultColumns == null ? resultColumns() : resultColumns),
+				tableName(), (joinOrReference == null ? "" : joinOrReference)));
 		Tuple params = Tuple.tuple();
 		boolean isFrist = true;
 		List<SqlPropertyValue<?>> propertyValue;
@@ -353,7 +324,7 @@ public abstract class AbstractStatementSQL implements SQLStatement {
 			}
 			params.addValue(pv.getValue());
 		}
-		String sql = String.format("insert into %s (%s) values (%s) ", getSqlTableName(), tempColumn, tempValues);
+		String sql = String.format("insert into %s (%s) values (%s) ", tableName(), tempColumn, tempValues);
 		SqlAndParams result = new SqlAndParams(sql.toString(), (params.size() <= 0 ? null : params));
 		if (LOG.isDebugEnabled()) {
 			LOG.debug("insertAllSQL : " + result.toString());
@@ -387,7 +358,7 @@ public abstract class AbstractStatementSQL implements SQLStatement {
 		if (tempColumn == null || tempValues == null) {
 			return new SqlAndParams(false, "The column or value is null");
 		}
-		String sql = String.format("insert into %s (%s) values (%s) ", getSqlTableName(), tempColumn, tempValues);
+		String sql = String.format("insert into %s (%s) values (%s) ", tableName(), tempColumn, tempValues);
 		SqlAndParams result = new SqlAndParams(sql, (params.size() <= 0 ? null : params));
 		if (LOG.isDebugEnabled()) {
 			LOG.debug("insertNonEmptySQL : " + result.toString());
@@ -434,7 +405,7 @@ public abstract class AbstractStatementSQL implements SQLStatement {
 			}
 			params.add(paramx);
 		}
-		String sql = String.format("insert into %s (%s) values (%s) ", getSqlTableName(), tempColumn, tempValues);
+		String sql = String.format("insert into %s (%s) values (%s) ", tableName(), tempColumn, tempValues);
 		SqlAndParams qp = new SqlAndParams(sql, params);
 		if (LOG.isDebugEnabled()) {
 			LOG.debug("insertBatch : " + qp.toString());
@@ -458,7 +429,7 @@ public abstract class AbstractStatementSQL implements SQLStatement {
 				tempValues.append(",?");
 			}
 		}
-		String sql = String.format("insert into %s (%s) values (%s) ", getSqlTableName(), tempColumn, tempValues);
+		String sql = String.format("insert into %s (%s) values (%s) ", tableName(), tempColumn, tempValues);
 		SqlAndParams qp = new SqlAndParams(sql, params);
 		if (LOG.isDebugEnabled()) {
 			LOG.debug("insertBatch : " + qp.toString());
@@ -492,7 +463,7 @@ public abstract class AbstractStatementSQL implements SQLStatement {
 		if (tempColumn == null || tempValues == null) {
 			return new SqlAndParams(false, "The column or value is null");
 		}
-		String sql = String.format("replace into %s (%s) values (%s) ", getSqlTableName(), tempColumn, tempValues);
+		String sql = String.format("replace into %s (%s) values (%s) ", tableName(), tempColumn, tempValues);
 		SqlAndParams result = new SqlAndParams(sql.toString(), (params.size() <= 0 ? null : params));
 		if (LOG.isDebugEnabled()) {
 			LOG.debug("replaceSQL : " + result.toString());
@@ -502,7 +473,7 @@ public abstract class AbstractStatementSQL implements SQLStatement {
 
 	@Override
 	public <T> SqlAndParams updateAllByIdSQL(T obj) {
-		if (getSqlPrimaryId() == null) {
+		if (primaryId() == null) {
 			return new SqlAndParams(false, "there is no primary key in your SQL statement");
 		}
 		Tuple params = Tuple.tuple();
@@ -515,7 +486,7 @@ public abstract class AbstractStatementSQL implements SQLStatement {
 			return new SqlAndParams(false, " Get SqlPropertyValue failed: " + e.getMessage());
 		}
 		for (SqlPropertyValue<?> pv : propertyValue) {
-			if (pv.getName().equals(getSqlPrimaryId())) {
+			if (pv.getName().equals(primaryId())) {
 				tempIdValue = pv.getValue();
 				continue;
 			}
@@ -530,7 +501,7 @@ public abstract class AbstractStatementSQL implements SQLStatement {
 			return new SqlAndParams(false, "there is no primary key in your SQL statement");
 		}
 		params.addValue(tempIdValue);
-		String sql = String.format("update %s set %s where %s = ? ", getSqlTableName(), tempColumn, getSqlPrimaryId());
+		String sql = String.format("update %s set %s where %s = ? ", tableName(), tempColumn, primaryId());
 		SqlAndParams result = new SqlAndParams(sql, params);
 		if (LOG.isDebugEnabled()) {
 			LOG.debug("updateAllByIdSQL : " + result.toString());
@@ -580,7 +551,7 @@ public abstract class AbstractStatementSQL implements SQLStatement {
 				}
 			}
 		}
-		String sql = String.format("update %s set %s %s", getSqlTableName(), tempColumn, whereStr == null ? "" : whereStr);
+		String sql = String.format("update %s set %s %s", tableName(), tempColumn, whereStr == null ? "" : whereStr);
 		SqlAndParams result = new SqlAndParams(sql.toString(), params);
 		if (LOG.isDebugEnabled()) {
 			LOG.debug("updateAllByAssistSQL : " + result.toString());
@@ -590,7 +561,7 @@ public abstract class AbstractStatementSQL implements SQLStatement {
 
 	@Override
 	public <T> SqlAndParams updateNonEmptyByIdSQL(T obj) {
-		if (getSqlPrimaryId() == null) {
+		if (primaryId() == null) {
 			if (LOG.isDebugEnabled()) {
 				LOG.debug("there is no primary key in your SQL statement");
 			}
@@ -606,7 +577,7 @@ public abstract class AbstractStatementSQL implements SQLStatement {
 			return new SqlAndParams(false, " Get SqlPropertyValue failed: " + e.getMessage());
 		}
 		for (SqlPropertyValue<?> pv : propertyValue) {
-			if (pv.getName().equals(getSqlPrimaryId())) {
+			if (pv.getName().equals(primaryId())) {
 				tempIdValue = pv.getValue();
 				continue;
 			}
@@ -626,7 +597,7 @@ public abstract class AbstractStatementSQL implements SQLStatement {
 			return new SqlAndParams(false, "there is no set update value or no primary key in your SQL statement");
 		}
 		params.addValue(tempIdValue);
-		String sql = String.format("update %s set %s where %s = ? ", getSqlTableName(), tempColumn, getSqlPrimaryId());
+		String sql = String.format("update %s set %s where %s = ? ", tableName(), tempColumn, primaryId());
 		SqlAndParams result = new SqlAndParams(sql, params);
 		if (LOG.isDebugEnabled()) {
 			LOG.debug("updateNonEmptyByIdSQL : " + result.toString());
@@ -683,7 +654,7 @@ public abstract class AbstractStatementSQL implements SQLStatement {
 				}
 			}
 		}
-		String sql = String.format("update %s set %s %s", getSqlTableName(), tempColumn, whereStr);
+		String sql = String.format("update %s set %s %s", tableName(), tempColumn, whereStr);
 		SqlAndParams result = new SqlAndParams(sql.toString(), params);
 		if (LOG.isDebugEnabled()) {
 			LOG.debug("updateNonEmptyByAssistSQL : " + result.toString());
@@ -693,7 +664,7 @@ public abstract class AbstractStatementSQL implements SQLStatement {
 
 	@Override
 	public <S> SqlAndParams updateSetNullByIdSQL(S primaryValue, List<String> columns) {
-		if (getSqlPrimaryId() == null) {
+		if (primaryId() == null) {
 			return new SqlAndParams(false, "there is no primary key in your SQL statement");
 		}
 
@@ -705,7 +676,7 @@ public abstract class AbstractStatementSQL implements SQLStatement {
 		for (int i = 1; i < columns.size(); i++) {
 			setStr.append(", " + columns.get(i) + " = null ");
 		}
-		String sql = String.format("update %s set %s where %s = ? ", getSqlTableName(), setStr.toString(), getSqlPrimaryId());
+		String sql = String.format("update %s set %s where %s = ? ", tableName(), setStr.toString(), primaryId());
 		SqlAndParams result = new SqlAndParams(sql, Tuple.of(primaryValue));
 		if (LOG.isDebugEnabled()) {
 			LOG.debug("updateSetNullById : " + result.toString());
@@ -748,7 +719,7 @@ public abstract class AbstractStatementSQL implements SQLStatement {
 				}
 			}
 		}
-		String sql = String.format("update %s set %s %s", getSqlTableName(), setStr.toString(), whereStr);
+		String sql = String.format("update %s set %s %s", tableName(), setStr.toString(), whereStr);
 		SqlAndParams result = new SqlAndParams(sql.toString(), params);
 		if (LOG.isDebugEnabled()) {
 			LOG.debug("updateSetNullByAssist : " + result.toString());
@@ -758,10 +729,10 @@ public abstract class AbstractStatementSQL implements SQLStatement {
 
 	@Override
 	public <S> SqlAndParams deleteByIdSQL(S primaryValue) {
-		if (getSqlPrimaryId() == null) {
+		if (primaryId() == null) {
 			return new SqlAndParams(false, "there is no primary key in your SQL statement");
 		}
-		String sql = String.format("delete from %s where %s = ? ", getSqlTableName(), getSqlPrimaryId());
+		String sql = String.format("delete from %s where %s = ? ", tableName(), primaryId());
 		SqlAndParams result = new SqlAndParams(sql, Tuple.of(primaryValue));
 		if (LOG.isDebugEnabled()) {
 			LOG.debug("deleteByIdSQL : " + result.toString());
@@ -796,7 +767,7 @@ public abstract class AbstractStatementSQL implements SQLStatement {
 				}
 			}
 		}
-		String sql = String.format("delete from %s %s", getSqlTableName(), whereStr);
+		String sql = String.format("delete from %s %s", tableName(), whereStr);
 		SqlAndParams result = new SqlAndParams(sql, params);
 		if (LOG.isDebugEnabled()) {
 			LOG.debug("deleteByAssistSQL : " + result.toString());
