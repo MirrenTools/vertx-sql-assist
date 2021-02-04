@@ -17,12 +17,22 @@ import io.vertx.core.json.JsonObject;
 public class SqlLimitResult<T> {
 	/** 分页返回结果键名称的map */
 	private static final Map<String, String> JSON_NAME_KEY_MAPS = new HashMap<>();
+	/** 数据总行数的默认key与value */
+	public static final String TOTALS = "totals";
+	/** 数据总页数的默认key与value */
+	public static final String PAGES = "pages";
+	/** 当前是第几页的默认key与value */
+	public static final String PAGE = "page";
+	/** 每页显示多少行数据的默认key与value */
+	public static final String SIZE = "size";
+	/** 数据的默认key与value */
+	public static final String DATA = "data";
 	static {
-		JSON_NAME_KEY_MAPS.put("totals", "totals");
-		JSON_NAME_KEY_MAPS.put("pages", "pages");
-		JSON_NAME_KEY_MAPS.put("page", "page");
-		JSON_NAME_KEY_MAPS.put("size", "size");
-		JSON_NAME_KEY_MAPS.put("data", "data");
+		JSON_NAME_KEY_MAPS.put(TOTALS, TOTALS);
+		JSON_NAME_KEY_MAPS.put(PAGES, PAGES);
+		JSON_NAME_KEY_MAPS.put(PAGE, PAGE);
+		JSON_NAME_KEY_MAPS.put(SIZE, SIZE);
+		JSON_NAME_KEY_MAPS.put(DATA, DATA);
 	}
 
 	/**
@@ -85,11 +95,11 @@ public class SqlLimitResult<T> {
 	 */
 	public JsonObject toJson() {
 		JsonObject result = new JsonObject();
-		result.put(JSON_NAME_KEY_MAPS.getOrDefault("totals", "totals"), getTotals());
-		result.put(JSON_NAME_KEY_MAPS.getOrDefault("pages", "pages"), getPages());
-		result.put(JSON_NAME_KEY_MAPS.getOrDefault("page", "page"), getPage());
-		result.put(JSON_NAME_KEY_MAPS.getOrDefault("size", "size"), getSize());
-		String dataKey = JSON_NAME_KEY_MAPS.getOrDefault("data", "data");
+		result.put(JSON_NAME_KEY_MAPS.getOrDefault(TOTALS, TOTALS), getTotals());
+		result.put(JSON_NAME_KEY_MAPS.getOrDefault(PAGES, PAGES), getPages());
+		result.put(JSON_NAME_KEY_MAPS.getOrDefault(PAGE, PAGE), getPage());
+		result.put(JSON_NAME_KEY_MAPS.getOrDefault(SIZE, SIZE), getSize());
+		String dataKey = JSON_NAME_KEY_MAPS.getOrDefault(DATA, DATA);
 		if (getData() == null) {
 			result.put(dataKey, new JsonArray());
 		} else {

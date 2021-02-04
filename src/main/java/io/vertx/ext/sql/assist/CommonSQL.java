@@ -50,7 +50,7 @@ public abstract class CommonSQL<E, C> implements CommonSQLClinet<C> {
 	 * @param statement
 	 *          SQL执行语句
 	 */
-	public CommonSQL(SQLExecute<E> execute, SQLStatement statement) {
+	public CommonSQL(SQLExecute<C> execute, SQLStatement statement) {
 		this.command = new SQLCommandImpl(statement, execute);
 	}
 
@@ -111,18 +111,21 @@ public abstract class CommonSQL<E, C> implements CommonSQLClinet<C> {
 	}
 
 	@Override
-	public <S> void selectById(S primaryValue, String resultColumns, String joinOrReference, Handler<AsyncResult<JsonObject>> handler) {
-		command.selectById(primaryValue, resultColumns, joinOrReference, handler);
+	public <S> void selectById(S primaryValue, String resultColumns, String tableAlias, String joinOrReference,
+			Handler<AsyncResult<JsonObject>> handler) {
+		command.selectById(primaryValue, resultColumns, tableAlias, joinOrReference, handler);
 	}
 
 	@Override
-	public <T> void selectSingleByObj(T obj, String resultColumns, String joinOrReference, Handler<AsyncResult<JsonObject>> handler) {
-		command.selectSingleByObj(obj, resultColumns, joinOrReference, handler);
+	public <T> void selectSingleByObj(T obj, String resultColumns, String tableAlias, String joinOrReference,
+			Handler<AsyncResult<JsonObject>> handler) {
+		command.selectSingleByObj(obj, resultColumns, tableAlias, joinOrReference, handler);
 	}
 
 	@Override
-	public <T> void selectByObj(T obj, String resultColumns, String joinOrReference, Handler<AsyncResult<List<JsonObject>>> handler) {
-		command.selectByObj(obj, resultColumns, joinOrReference, handler);
+	public <T> void selectByObj(T obj, String resultColumns, String tableAlias, String joinOrReference,
+			Handler<AsyncResult<List<JsonObject>>> handler) {
+		command.selectByObj(obj, resultColumns, tableAlias, joinOrReference, handler);
 	}
 
 	@Override

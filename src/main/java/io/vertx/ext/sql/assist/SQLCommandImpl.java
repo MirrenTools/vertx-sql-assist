@@ -58,20 +58,23 @@ public class SQLCommandImpl implements SQLCommand {
 	}
 
 	@Override
-	public <S> void selectById(S primaryValue, String resultColumns, String joinOrReference, Handler<AsyncResult<JsonObject>> handler) {
-		SqlAndParams qp = statement.selectByIdSQL(primaryValue, resultColumns, joinOrReference);
+	public <S> void selectById(S primaryValue, String resultColumns, String tableAlias, String joinOrReference,
+			Handler<AsyncResult<JsonObject>> handler) {
+		SqlAndParams qp = statement.selectByIdSQL(primaryValue, resultColumns, tableAlias, joinOrReference);
 		execute.queryAsObj(qp, handler);
 	}
 
 	@Override
-	public <T> void selectSingleByObj(T obj, String resultColumns, String joinOrReference, Handler<AsyncResult<JsonObject>> handler) {
-		SqlAndParams qp = statement.selectByObjSQL(obj, resultColumns, joinOrReference, true);
+	public <T> void selectSingleByObj(T obj, String resultColumns, String tableAlias, String joinOrReference,
+			Handler<AsyncResult<JsonObject>> handler) {
+		SqlAndParams qp = statement.selectByObjSQL(obj, resultColumns, tableAlias, joinOrReference, true);
 		execute.queryAsObj(qp, handler);
 	}
 
 	@Override
-	public <T> void selectByObj(T obj, String resultColumns, String joinOrReference, Handler<AsyncResult<List<JsonObject>>> handler) {
-		SqlAndParams qp = statement.selectByObjSQL(obj, resultColumns, joinOrReference, false);
+	public <T> void selectByObj(T obj, String resultColumns, String tableAlias, String joinOrReference,
+			Handler<AsyncResult<List<JsonObject>>> handler) {
+		SqlAndParams qp = statement.selectByObjSQL(obj, resultColumns, tableAlias, joinOrReference, false);
 		execute.queryAsList(qp, handler);
 	}
 
@@ -90,7 +93,8 @@ public class SQLCommandImpl implements SQLCommand {
 	@Override
 	public <T> void insertNonEmptyGeneratedKeys(T obj, Handler<AsyncResult<Object>> handler) {
 		SqlAndParams qp = statement.insertNonEmptySQL(obj);
-		execute.updateResult(qp, PropertyKind.create("generated-keys", Row.class), res -> {
+//	TODO 做多数据库的尝试获取	mysql=last-inserted-id
+		execute.updateResult(qp,PropertyKind.create("generated-keys", Row.class), res -> {
 			if (res.succeeded()) {
 				Row row = res.result();
 				if (row != null) {

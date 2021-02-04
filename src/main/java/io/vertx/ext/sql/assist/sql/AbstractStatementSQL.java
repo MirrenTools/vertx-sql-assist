@@ -123,7 +123,7 @@ public abstract class AbstractStatementSQL implements SQLStatement {
 	 * @return
 	 * @throws Exception
 	 */
-	protected <T> List<SqlPropertyValue<?>> getPropertyValue(T obj) throws Exception {
+	public <T> List<SqlPropertyValue<?>> getPropertyValue(T obj) throws Exception {
 		Field[] fields = obj.getClass().getDeclaredFields();
 		List<SqlPropertyValue<?>> result = new ArrayList<>();;
 		for (Field field : fields) {
@@ -259,9 +259,12 @@ public abstract class AbstractStatementSQL implements SQLStatement {
 	}
 
 	@Override
-	public <S> SqlAndParams selectByIdSQL(S primaryValue, String resultColumns, String joinOrReference) {
-		String sql = String.format("select %s from %s %s where %s = ? ", (resultColumns == null ? resultColumns() : resultColumns), tableName(),
-				(joinOrReference == null ? "" : joinOrReference), primaryId());
+	public <S> SqlAndParams selectByIdSQL(S primaryValue, String resultColumns, String tableAlias, String joinOrReference) {
+		String sql = String.format("select %s from %s %s where %s = ? ", 
+				(resultColumns == null ? resultColumns() : resultColumns),
+				(tableName() + (tableAlias == null ? "" : (" AS " + tableAlias))), 
+				(joinOrReference == null ? "" : joinOrReference),
+				(tableAlias == null ? "" : (tableAlias + ".")) + primaryId());
 		SqlAndParams result = new SqlAndParams(sql, Tuple.of(primaryValue));
 		if (LOG.isDebugEnabled()) {
 			LOG.debug("selectByIdSQL : " + result.toString());
@@ -270,9 +273,11 @@ public abstract class AbstractStatementSQL implements SQLStatement {
 	}
 
 	@Override
-	public <T> SqlAndParams selectByObjSQL(T obj, String resultColumns, String joinOrReference, boolean single) {
-		StringBuilder sql = new StringBuilder(String.format("select %s from %s %s ", (resultColumns == null ? resultColumns() : resultColumns),
-				tableName(), (joinOrReference == null ? "" : joinOrReference)));
+	public <T> SqlAndParams selectByObjSQL(T obj, String resultColumns, String tableAlias, String joinOrReference, boolean single) {
+		StringBuilder sql = new StringBuilder(String.format("select %s from %s %s ", 
+				(resultColumns == null ? resultColumns() : resultColumns),
+				(tableName() + (tableAlias == null ? "" : (" AS " + tableAlias))), 
+				(joinOrReference == null ? "" : joinOrReference)));
 		Tuple params = Tuple.tuple();
 		boolean isFrist = true;
 		List<SqlPropertyValue<?>> propertyValue;
@@ -285,10 +290,10 @@ public abstract class AbstractStatementSQL implements SQLStatement {
 			SqlPropertyValue<?> pv = propertyValue.get(i);
 			if (pv.getValue() != null) {
 				if (isFrist) {
-					sql.append(String.format("where %s = ? ", pv.getName()));
+					sql.append(String.format("where %s = ? ", (tableAlias == null ? "" : (tableAlias + ".")) + pv.getName()));
 					isFrist = false;
 				} else {
-					sql.append(String.format("and %s = ? ", pv.getName()));
+					sql.append(String.format("and %s = ? ", (tableAlias == null ? "" : (tableAlias + ".")) + pv.getName()));
 				}
 				params.addValue(pv.getValue());
 			}

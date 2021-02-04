@@ -111,10 +111,11 @@ public class SqlServerStatementSQL extends AbstractStatementSQL {
 	}
 
 	@Override
-	public <T> SqlAndParams selectByObjSQL(T obj, String resultColumns, String joinOrReference, boolean single) {
+	public <T> SqlAndParams selectByObjSQL(T obj, String resultColumns,String tableAlias, String joinOrReference, boolean single) {
 		StringBuilder sql = new StringBuilder(
 				String.format("select %s %s from %s %s ", (single ? "top 1" : ""), (resultColumns == null ? resultColumns() : resultColumns),
-																									tableName(), (joinOrReference == null ? "" : joinOrReference)));
+																									(tableName() + (tableAlias == null ? "" : (" AS " + tableAlias))),
+																									(joinOrReference == null ? "" : joinOrReference)));
 		Tuple params = Tuple.tuple();
 		boolean isFrist = true;
 		List<SqlPropertyValue<?>> propertyValue;
@@ -127,10 +128,10 @@ public class SqlServerStatementSQL extends AbstractStatementSQL {
 			SqlPropertyValue<?> pv = propertyValue.get(i);
 			if (pv.getValue() != null) {
 				if (isFrist) {
-					sql.append(String.format("where %s = ? ", pv.getName()));
+					sql.append(String.format("where %s = ? ",  (tableAlias == null ? "" : (tableAlias+"."))+pv.getName()));
 					isFrist = false;
 				} else {
-					sql.append(String.format("and %s = ? ", pv.getName()));
+					sql.append(String.format("and %s = ? ",  (tableAlias == null ? "" : (tableAlias+"."))+pv.getName()));
 				}
 				params.addValue(pv.getValue());
 			}

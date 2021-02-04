@@ -88,12 +88,15 @@ public interface SQLCommand {
 	 *          主键值
 	 * @param resultColumns
 	 *          自定义返回列
+	 * @param tableAlias
+	 *          当前表的别名
 	 * @param joinOrReference
-	 *          多表查询或表连接的语句,示例 as t inner join table2 as t2 on t.id=t2.id
+	 *          多表查询或表连接的语句,示例 inner join table2 as t2 on t.id=t2.id
 	 * @param handler
 	 *          返回结果:如果查询得到返回JsonObject如果查询不到返回null
 	 */
-	<S> void selectById(S primaryValue, String resultColumns, String joinOrReference, Handler<AsyncResult<JsonObject>> handler);
+	<S> void selectById(S primaryValue, String resultColumns, String tableAlias, String joinOrReference,
+			Handler<AsyncResult<JsonObject>> handler);
 
 	/**
 	 * 将对象属性不为null的属性作为条件查询出数据,只取查询出来的第一条数据
@@ -102,12 +105,15 @@ public interface SQLCommand {
 	 *          对象
 	 * @param resultColumns
 	 *          自定义返回列
+	 * @param tableAlias
+	 *          当前表的别名
 	 * @param joinOrReference
-	 *          多表查询或表连接的语句,示例 as t inner join table2 as t2 on t.id=t2.id
+	 *          多表查询或表连接的语句,示例 inner join table2 as t2 on t.id=t2.id
 	 * @param handler
 	 *          结果:如果存在返回JsonObject,不存在返回null
 	 */
-	<T> void selectSingleByObj(T obj, String resultColumns, String joinOrReference, Handler<AsyncResult<JsonObject>> handler);
+	<T> void selectSingleByObj(T obj, String resultColumns, String tableAlias, String joinOrReference,
+			Handler<AsyncResult<JsonObject>> handler);
 
 	/**
 	 * 将对象属性不为null的属性作为条件查询出数据
@@ -116,12 +122,15 @@ public interface SQLCommand {
 	 *          对象
 	 * @param resultColumns
 	 *          自定义返回列
+	 * @param tableAlias
+	 *          当前表的别名
 	 * @param joinOrReference
-	 *          多表查询或表连接的语句,示例 as t inner join table2 as t2 on t.id=t2.id
+	 *          多表查询或表连接的语句,示例 inner join table2 as t2 on t.id=t2.id
 	 * @param handler
 	 *          返回结果集
 	 */
-	<T> void selectByObj(T obj, String resultColumns, String joinOrReference, Handler<AsyncResult<List<JsonObject>>> handler);
+	<T> void selectByObj(T obj, String resultColumns, String tableAlias, String joinOrReference,
+			Handler<AsyncResult<List<JsonObject>>> handler);
 
 	/**
 	 * 插入一个对象包括属性值为null的值

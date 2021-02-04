@@ -1,5 +1,8 @@
 package io.vertx.ext.sql.assist;
 
+import java.util.Arrays;
+import java.util.List;
+
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.sql.assist.entity.Student;
@@ -19,14 +22,7 @@ public class JdbcPoolTest extends TestSuite<Student, JDBCPool> {
 		JDBCPool jdbcPool = JDBCPool.pool(vertx, config);
 		StudentSQL sql = new StudentSQL(SQLExecute.createJDBC(jdbcPool));
 		JdbcPoolTest test = new JdbcPoolTest(sql, config);
-		test.runTest(res -> {
-			if (res.succeeded()) {
-				System.out.println("succeeded:" + res.result());
-			} else {
-				System.err.println("failed:" + res.cause());
-			}
-			System.exit(0);
-		});
+		test.runTest(res -> System.exit(0));
 	}
 
 	public JdbcPoolTest(StudentSQL sql, JsonObject config) {
@@ -35,101 +31,52 @@ public class JdbcPoolTest extends TestSuite<Student, JDBCPool> {
 
 	@Override
 	public Student insertAllData() {
-		Student student = new Student();
-		student.setId(1);
-		student.setCid(1);
-		student.setNickname("nickname");
-		student.setPwd("pwd");
-		return student;
+		return new Student().setId(1).setCid(1).setNickname("nickname");
 	}
-
-	@Override
-	public Student updateAllByIdData() {
-		Student student = new Student();
-		student.setId(1);
-		student.setCid(1);
-		student.setNickname("nickname1");
-		return student;
-	}
-
-	@Override
-	public Object selectByIdData() {
-		return 1;
-	}
-
-	@Override
-	public String selectByIdTestKey() {
-		return "nickname";
-	}
-
-	@Override
-	public Object selectByIdTestValue() {
-		return "nickname1";
-	}
-
-	@Override
-	public String selectByIdTestNullKey() {
-		return "possword";
-	}
-
 	@Override
 	public Student insertNonEmptyData() {
-		Student student = new Student();
-		student.setId(2);
-		student.setCid(1);
-		return student;
-	}
-
-	@Override
-	public Object selectByIdResultColumnsData() {
-		return 1;
-	}
-
-	@Override
-	public String selectByIdResultColumnsColumns() {
-		return " id,pwd AS p";
-	}
-
-	@Override
-	public String selectByIdResultColumnsTestKey() {
-		return "id";
-	}
-
-	@Override
-	public Object selectByIdResultColumnsTestValue() {
-		return 1;
-	}
-
-	@Override
-	public String selectByIdResultColumnsTestValueNullKey() {
-		return "pwd";
-	}
-
-	@Override
-	public String selectByIdResultColumnsTestNullKey() {
-		return "nickname";
+		return new Student().setId(2).setCid(1);
 	}
 
 	@Override
 	public Student insertNonEmptyGeneratedKeysData() {
-		Student student = new Student();
-		student.setCid(1);
-		return student;
+		return new Student().setCid(1).setNickname("nickname").setPwd("pwd");
 	}
 
 	@Override
-	public Student selectSingleByObjData(int id) {
-		return new Student().setId(id);
+	public List<Student> insertBatchData() {
+		return Arrays.asList(new Student().setCid(1).setPwd("batch"), new Student().setCid(1).setPwd("batch"));
 	}
 
 	@Override
-	public String selectSingleByObjTestKey() {
-		return "cid";
+	public Student replaceData() {
+		return new Student().setId(1).setCid(1).setNickname("replace").setPwd("replace");
 	}
 
 	@Override
-	public Object selectSingleByObjTestValue() {
-		return 1;
+	public Student updateAllByIdData() {
+		return new Student().setId(1).setCid(1).setNickname("update");
 	}
+
+	@Override
+	public Student updateAllByAssistData() {
+		return new Student().setId(1).setCid(1).setPwd("updatebyAssist");
+	}
+
+	@Override
+	public Student updateNonEmptyByIdData() {
+		return new Student().setId(1).setCid(1).setNickname("nickname");
+	}
+
+	@Override
+	public Student updateNonEmptyByAssistData() {
+		return new Student().setPwd("updateNonEmptyByAssist");
+	}
+
+	@Override
+	public Student selectByObjData() {
+		return new Student().setCid(1);
+	}
+	
 
 }

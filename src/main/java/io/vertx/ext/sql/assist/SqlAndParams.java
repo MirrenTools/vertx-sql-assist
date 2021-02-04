@@ -148,9 +148,9 @@ public class SqlAndParams {
 	@Override
 	public String toString() {
 		StringBuilder result = new StringBuilder();
-		result.append("SqlAndParams [succeeded=" + sql + ",");
+		result.append("SqlAndParams [succeeded=" + succeeded + ",");
 		result.append("sql=" + sql + ",");
-		result.append("params=" + params == null ? "null" : params.deepToString() + ",");
+		result.append("params=" + (params == null ? "null" : params.deepToString()) + ",");
 		result.append("batchParams=");
 		if (batchParams == null) {
 			result.append("null");

@@ -293,7 +293,7 @@ public interface CommonSQLClinet<C> {
 	 */
 	default <S> Future<JsonObject> selectById(S primaryValue) {
 		Promise<JsonObject> promise = Promise.promise();
-		selectById(primaryValue, null, null, promise);
+		selectById(primaryValue, null, null, null, promise);
 		return promise.future();
 	}
 
@@ -306,7 +306,7 @@ public interface CommonSQLClinet<C> {
 	 *          返回结果:如果查询得到返回JsonObject如果查询不到返回null
 	 */
 	default <S> void selectById(S primaryValue, Handler<AsyncResult<JsonObject>> handler) {
-		selectById(primaryValue, null, null, handler);
+		selectById(primaryValue, null, null, null, handler);
 	}
 
 	/**
@@ -320,7 +320,7 @@ public interface CommonSQLClinet<C> {
 	 */
 	default <S> Future<JsonObject> selectById(S primaryValue, String resultColumns) {
 		Promise<JsonObject> promise = Promise.promise();
-		selectById(primaryValue, resultColumns, null, promise);
+		selectById(primaryValue, resultColumns, null, null, promise);
 		return promise.future();
 	}
 
@@ -335,7 +335,7 @@ public interface CommonSQLClinet<C> {
 	 *          返回结果:如果查询得到返回JsonObject如果查询不到返回null
 	 */
 	default <S> void selectById(S primaryValue, String resultColumns, Handler<AsyncResult<JsonObject>> handler) {
-		selectById(primaryValue, resultColumns, null, handler);
+		selectById(primaryValue, resultColumns, null, null, handler);
 	}
 
 	/**
@@ -345,13 +345,15 @@ public interface CommonSQLClinet<C> {
 	 *          主键值
 	 * @param resultColumns
 	 *          自定义返回列
+	 * @param tableAlias
+	 *          当前表的别名
 	 * @param joinOrReference
-	 *          多表查询或表连接的语句,示例 as t inner join table2 as t2 on t.id=t2.id
+	 *          多表查询或表连接的语句,示例 inner join table2 as t2 on t.id=t2.id
 	 * @return 返回结果:如果查询得到返回JsonObject如果查询不到返回null
 	 */
-	default <S> Future<JsonObject> selectById(S primaryValue, String resultColumns, String joinOrReference) {
+	default <S> Future<JsonObject> selectById(S primaryValue, String resultColumns, String tableAlias, String joinOrReference) {
 		Promise<JsonObject> promise = Promise.promise();
-		selectById(primaryValue, resultColumns, joinOrReference, promise);
+		selectById(primaryValue, resultColumns, tableAlias, joinOrReference, promise);
 		return promise.future();
 	}
 	/**
@@ -361,12 +363,15 @@ public interface CommonSQLClinet<C> {
 	 *          主键值
 	 * @param resultColumns
 	 *          自定义返回列
+	 * @param tableAlias
+	 *          当前表的别名
 	 * @param joinOrReference
-	 *          多表查询或表连接的语句,示例 as t inner join table2 as t2 on t.id=t2.id
+	 *          多表查询或表连接的语句,示例 inner join table2 as t2 on t.id=t2.id
 	 * @param handler
 	 *          返回结果:如果查询得到返回JsonObject如果查询不到返回null
 	 */
-	<S> void selectById(S primaryValue, String resultColumns, String joinOrReference, Handler<AsyncResult<JsonObject>> handler);
+	<S> void selectById(S primaryValue, String resultColumns, String tableAlias, String joinOrReference,
+			Handler<AsyncResult<JsonObject>> handler);
 
 	/**
 	 * 将对象属性不为null的属性作为条件查询出数据,只取查询出来的第一条数据;
@@ -378,7 +383,7 @@ public interface CommonSQLClinet<C> {
 	 */
 	default <T> Future<JsonObject> selectSingleByObj(T obj) {
 		Promise<JsonObject> promise = Promise.promise();
-		selectSingleByObj(obj, null, null, promise);
+		selectSingleByObj(obj, null, null, null, promise);
 		return promise.future();
 	}
 
@@ -392,7 +397,7 @@ public interface CommonSQLClinet<C> {
 	 *          结果:如果存在返回JsonObject,不存在返回null
 	 */
 	default <T> void selectSingleByObj(T obj, Handler<AsyncResult<JsonObject>> handler) {
-		selectSingleByObj(obj, null, null, handler);
+		selectSingleByObj(obj, null, null, null, handler);
 	}
 
 	/**
@@ -407,7 +412,7 @@ public interface CommonSQLClinet<C> {
 	 */
 	default <T> Future<JsonObject> selectSingleByObj(T obj, String resultColumns) {
 		Promise<JsonObject> promise = Promise.promise();
-		selectSingleByObj(obj, resultColumns, null, promise);
+		selectSingleByObj(obj, resultColumns, null, null, promise);
 		return promise.future();
 	}
 
@@ -423,7 +428,7 @@ public interface CommonSQLClinet<C> {
 	 *          结果:如果存在返回JsonObject,不存在返回null
 	 */
 	default <T> void selectSingleByObj(T obj, String resultColumns, Handler<AsyncResult<JsonObject>> handler) {
-		selectSingleByObj(obj, resultColumns, null, handler);
+		selectSingleByObj(obj, resultColumns, null, null, handler);
 	}
 
 	/**
@@ -433,13 +438,15 @@ public interface CommonSQLClinet<C> {
 	 *          对象
 	 * @param resultColumns
 	 *          自定义返回列
+	 * @param tableAlias
+	 *          当前表的别名
 	 * @param joinOrReference
-	 *          多表查询或表连接的语句,示例 as t inner join table2 as t2 on t.id=t2.id
+	 *          多表查询或表连接的语句,示例 inner join table2 as t2 on t.id=t2.id
 	 * @return 结果:如果存在返回JsonObject,不存在返回null
 	 */
-	default <T> Future<JsonObject> selectSingleByObj(T obj, String resultColumns, String joinOrReference) {
+	default <T> Future<JsonObject> selectSingleByObj(T obj, String resultColumns, String tableAlias, String joinOrReference) {
 		Promise<JsonObject> promise = Promise.promise();
-		selectSingleByObj(obj, resultColumns, joinOrReference, promise);
+		selectSingleByObj(obj, resultColumns, tableAlias, joinOrReference, promise);
 		return promise.future();
 	}
 
@@ -450,12 +457,15 @@ public interface CommonSQLClinet<C> {
 	 *          对象
 	 * @param resultColumns
 	 *          自定义返回列
+	 * @param tableAlias
+	 *          当前表的别名
 	 * @param joinOrReference
-	 *          多表查询或表连接的语句,示例 as t inner join table2 as t2 on t.id=t2.id
+	 *          多表查询或表连接的语句,示例 inner join table2 as t2 on t.id=t2.id
 	 * @param handler
 	 *          结果:如果存在返回JsonObject,不存在返回null
 	 */
-	<T> void selectSingleByObj(T obj, String resultColumns, String joinOrReference, Handler<AsyncResult<JsonObject>> handler);
+	<T> void selectSingleByObj(T obj, String resultColumns, String tableAlias, String joinOrReference,
+			Handler<AsyncResult<JsonObject>> handler);
 
 	/**
 	 * 将对象属性不为null的属性作为条件查询出数据
@@ -467,7 +477,7 @@ public interface CommonSQLClinet<C> {
 	 */
 	default <T> Future<List<JsonObject>> selectByObj(T obj) {
 		Promise<List<JsonObject>> promise = Promise.promise();
-		selectByObj(obj, null, null, promise);
+		selectByObj(obj, null, null, null, promise);
 		return promise.future();
 	}
 
@@ -481,7 +491,7 @@ public interface CommonSQLClinet<C> {
 	 *          返回结果集
 	 */
 	default <T> void selectByObj(T obj, Handler<AsyncResult<List<JsonObject>>> handler) {
-		selectByObj(obj, null, null, handler);
+		selectByObj(obj, null, null, null, handler);
 	}
 
 	/**
@@ -496,7 +506,7 @@ public interface CommonSQLClinet<C> {
 	 */
 	default <T> Future<List<JsonObject>> selectByObj(T obj, String resultColumns) {
 		Promise<List<JsonObject>> promise = Promise.promise();
-		selectByObj(obj, resultColumns, null, promise);
+		selectByObj(obj, resultColumns, null, null, promise);
 		return promise.future();
 	}
 
@@ -512,7 +522,7 @@ public interface CommonSQLClinet<C> {
 	 *          返回结果集
 	 */
 	default <T> void selectByObj(T obj, String resultColumns, Handler<AsyncResult<List<JsonObject>>> handler) {
-		selectByObj(obj, resultColumns, null, handler);
+		selectByObj(obj, resultColumns, null, null, handler);
 	}
 
 	/**
@@ -522,13 +532,15 @@ public interface CommonSQLClinet<C> {
 	 *          对象
 	 * @param resultColumns
 	 *          自定义返回列
+	 * @param tableAlias
+	 *          当前表的别名
 	 * @param joinOrReference
-	 *          多表查询或表连接的语句,示例 as t inner join table2 as t2 on t.id=t2.id
+	 *          多表查询或表连接的语句,示例 inner join table2 as t2 on t.id=t2.id
 	 * @return 返回结果集
 	 */
-	default <T> Future<List<JsonObject>> selectByObj(T obj, String resultColumns, String joinOrReference) {
+	default <T> Future<List<JsonObject>> selectByObj(T obj, String resultColumns, String tableAlias, String joinOrReference) {
 		Promise<List<JsonObject>> promise = Promise.promise();
-		selectByObj(obj, resultColumns, joinOrReference, promise);
+		selectByObj(obj, resultColumns, tableAlias, joinOrReference, promise);
 		return promise.future();
 	}
 
@@ -539,12 +551,15 @@ public interface CommonSQLClinet<C> {
 	 *          对象
 	 * @param resultColumns
 	 *          自定义返回列
+	 * @param tableAlias
+	 *          当前表的别名
 	 * @param joinOrReference
-	 *          多表查询或表连接的语句,示例 as t inner join table2 as t2 on t.id=t2.id
+	 *          多表查询或表连接的语句,示例 inner join table2 as t2 on t.id=t2.id
 	 * @param handler
 	 *          返回结果集
 	 */
-	<T> void selectByObj(T obj, String resultColumns, String joinOrReference, Handler<AsyncResult<List<JsonObject>>> handler);
+	<T> void selectByObj(T obj, String resultColumns, String tableAlias, String joinOrReference,
+			Handler<AsyncResult<List<JsonObject>>> handler);
 
 	/**
 	 * 插入一个对象包括属性值为null的值

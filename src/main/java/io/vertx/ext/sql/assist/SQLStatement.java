@@ -96,11 +96,13 @@ public interface SQLStatement {
 	 *          主键的值
 	 * @param resultColumns
 	 *          指定返回列 格式 [table.]列名 [as 类的属性名字],...
+	 * @param tableAlias
+	 *          当前表的别名
 	 * @param joinOrReference
-	 *          多表查询或表连接的语句,示例 as t inner join table2 as t2 on t.id=t2.id
+	 *          多表查询或表连接的语句,示例 inner join table2 as t2 on t.id=t2.id
 	 * @return
 	 */
-	<S> SqlAndParams selectByIdSQL(S primaryValue, String resultColumns, String joinOrReference);
+	<S> SqlAndParams selectByIdSQL(S primaryValue, String resultColumns, String tableAlias, String joinOrReference);
 	/**
 	 * 将对象属性不为null的属性作为条件查询出数据
 	 * 
@@ -108,14 +110,16 @@ public interface SQLStatement {
 	 *          对象
 	 * @param resultColumns
 	 *          自定义返回列
+	 * @param tableAlias
+	 *          当前表的别名
 	 * @param joinOrReference
-	 *          多表查询或表连接的语句,示例 as t inner join table2 as t2 on t.id=t2.id
+	 *          多表查询或表连接的语句,示例 inner join table2 as t2 on t.id=t2.id
 	 * @param single
 	 *          是否支取一条数据true支取一条,false取全部
 	 * @return 返回sql 或 sql与params
 	 * 
 	 */
-	<T> SqlAndParams selectByObjSQL(T obj, String resultColumns, String joinOrReference, boolean single);
+	<T> SqlAndParams selectByObjSQL(T obj, String resultColumns, String tableAlias, String joinOrReference, boolean single);
 	/**
 	 * 插入一个对象包括属性值为null的值<br>
 	 * 
