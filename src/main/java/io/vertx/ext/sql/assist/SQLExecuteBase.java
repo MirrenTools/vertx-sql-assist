@@ -106,10 +106,17 @@ public abstract class SQLExecuteBase {
 		if (qp.succeeded()) {
 			pool.preparedQuery(qp.getSql()).executeBatch(qp.getBatchParams(), res -> {
 				if (res.succeeded()) {
-					if (res.result() == null) {
+					RowSet<Row> rowSet = res.result();
+					if (rowSet == null) {
 						handler.handle(Future.succeededFuture(0));
 					} else {
-						handler.handle(Future.succeededFuture(res.result().rowCount()));
+						int count = rowSet.rowCount();
+						RowSet<Row> next = rowSet.next();
+						while (next != null) {
+							count += next.rowCount();
+							next = next.next();
+						}
+						handler.handle(Future.succeededFuture(count));
 					}
 				} else {
 					handler.handle(Future.failedFuture(res.cause()));

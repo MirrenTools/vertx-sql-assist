@@ -255,7 +255,7 @@ public abstract class TestSuite<E, C> {
 		System.out.println("=================================================");
 		sql.insertBatch(insertBatchData()).onSuccess(res -> {
 			LOG.info("insertBatch 执行结果:" + res);
-			if (res >=1) {
+			if (res == 2) {
 				SqlAssist assist = new SqlAssist();
 				assist.and(COLUMN_NICKNAME + " IS NULL").andEq(COLUMN_PWD, "batch");
 				getCountAndEquals(assist, 2, test -> {
@@ -269,7 +269,7 @@ public abstract class TestSuite<E, C> {
 				});
 			} else {
 				LOG.info("insertBatch 结果不匹配!");
-				String format = String.format("insertBatch 结果不匹配!\n期望结果:[>=%d]\n实际结果:[%d]", 1, res);
+				String format = String.format("insertBatch 结果不匹配!\n期望结果:[%d]\n实际结果:[%d]", 2, res);
 				failed(format, handler);
 			}
 		}).onFailure(err -> failed(err, handler));
@@ -279,7 +279,7 @@ public abstract class TestSuite<E, C> {
 		System.out.println("=================================================");
 		sql.insertBatch(Arrays.asList("cid", "pwd"), Arrays.asList(Tuple.of(1, "batch2"), Tuple.of(1, "batch2"))).onSuccess(res -> {
 			LOG.info("insertBatchCulumns 执行结果:" + res);
-			if (res >=1) {
+			if (res == 2) {
 				SqlAssist assist = new SqlAssist();
 				assist.and(COLUMN_NICKNAME + " IS NULL").andEq(COLUMN_PWD, "batch2");
 				getCountAndEquals(assist, 2, test -> {
@@ -293,7 +293,7 @@ public abstract class TestSuite<E, C> {
 				});
 			} else {
 				LOG.info("insertBatchCulumns 结果不匹配!");
-				String format = String.format("insertBatchCulumns 结果不匹配!\n期望结果:[>=%d]\n实际结果:[%d]", 1, res);
+				String format = String.format("insertBatchCulumns 结果不匹配!\n期望结果:[%d]\n实际结果:[%d]", 2, res);
 				failed(format, handler);
 			}
 		}).onFailure(err -> failed(err, handler));
