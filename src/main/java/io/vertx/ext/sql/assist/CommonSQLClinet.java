@@ -124,30 +124,30 @@ public interface CommonSQLClinet<C> {
 	void update(SqlAndParams qp, Handler<AsyncResult<Integer>> handler);
 
 	/**
-	 * 执行更新并操作结果,比如返回GENERATED_KEYS等:<br>
-	 * 获取GENERATED_KEYS方法:property传入JDBCPool.GENERATED_KEYS得到结果后判断row!=null就执行row.get对应类型数据
+	 * 执行更新并获得操作结果
 	 * 
 	 * @param qp
 	 *          SQL语句与参数
-	 * 
+	 * @param property
+	 *          返回结果的PropertyKind名称,比如JDBCPool.GENERATED_KEYS或MySQLClient.LAST_INSERTED_ID
 	 * @param handler
 	 */
-	default Future<Row> updateResult(SqlAndParams qp, PropertyKind<Row> property) {
-		Promise<Row> promise = Promise.promise();
+	default <R> Future<R> updateResult(SqlAndParams qp, PropertyKind<R> property) {
+		Promise<R> promise = Promise.promise();
 		updateResult(qp, property, promise);
 		return promise.future();
 	}
 
 	/**
-	 * 执行更新并操作结果,比如返回GENERATED_KEYS等:<br>
-	 * 获取GENERATED_KEYS方法:property传入JDBCPool.GENERATED_KEYS得到结果后判断row!=null就执行row.get对应类型数据
+	 * 执行更新并获得操作结果
 	 * 
 	 * @param qp
 	 *          SQL语句与参数
-	 * 
+	 * @param property
+	 *          返回结果的PropertyKind名称,比如JDBCPool.GENERATED_KEYS或MySQLClient.LAST_INSERTED_ID
 	 * @param handler
 	 */
-	void updateResult(SqlAndParams qp, PropertyKind<Row> property, Handler<AsyncResult<Row>> handler);
+	<R> void updateResult(SqlAndParams qp, PropertyKind<R> property, Handler<AsyncResult<R>> handler);
 
 	/**
 	 * 批量操作

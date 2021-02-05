@@ -86,7 +86,7 @@ public abstract class CommonSQL<E, C> implements CommonSQLClinet<C> {
 	}
 
 	@Override
-	public void updateResult(SqlAndParams qp, PropertyKind<Row> property, Handler<AsyncResult<Row>> handler) {
+	public <R> void updateResult(SqlAndParams qp, PropertyKind<R> property, Handler<AsyncResult<R>> handler) {
 		execute.updateResult(qp, property, handler);
 	}
 

@@ -115,7 +115,7 @@ public interface SQLExecute<T> {
 	 * 
 	 * @param handler
 	 */
-	void updateResult(SqlAndParams qp, PropertyKind<Row> property, Handler<AsyncResult<Row>> handler);
+	<R> void updateResult(SqlAndParams qp, PropertyKind<R> property, Handler<AsyncResult<R>> handler);
 
 	/**
 	 * 批量操作

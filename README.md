@@ -24,6 +24,7 @@ To use vertx-sql-assist, add the following dependency to the dependencies sectio
 * **insertBatch** Batch add insert
 * **insertAll** Insert an object including a value with a null property value
 * **insertNonEmpty** Insert an object, only the property whose value is not null
+* **insertNonEmptyGeneratedKeys** Insert an object, only the property whose value is not null,and get result id
 * **replace** Insert an object. If the object does not exist, create a new one. If the object already exists, update it
 * **updateAllById** Update all properties in an object, including null value, if it is the primary key value in the object
 * **updateAllByAssist** Update all properties in an object including null value, by SqlAssist
@@ -34,10 +35,11 @@ To use vertx-sql-assist, add the following dependency to the dependencies sectio
 * **deleteById** Delete by ID
 * **deleteByAssist** Delete by SqlAssist
 * **queryAsObj** Execution query result is JsonObject
-* **queryAsListObj** Execution query result is JsonArray
-* **queryAsListArray** Execution query result is JsonArray
+* **queryAsList** Execution query result is List<JsonObject>
 * **update** Execution update result is number of affected rows
+* **updateResult** Execution update and get result
 * **batch** Batch Execution
+* **execute** Pool Execution
 
 ## SqlAssist method description
 * **setOrders** Set OrderBy with SqlAssist.order(column,mode)
@@ -119,13 +121,13 @@ public class User {
 2.Create SQL class and  extends CommonSQL
 
 ``` java
-public class UserSQL extends CommonSQL<User,JDBCClient> {//(1)
-	public UserSQL(SQLExecute<JDBCClient> execute) {
+public class UserSQL extends CommonSQL<User,JDBCPool> {//(1)
+	public UserSQL(SQLExecute<JDBCPool> execute) {
 		super(execute);
 	}
   //(1)
-  //The User must be an entity class annotation with @Table, @TableId, @TableColumn
-  //JDBCClient can be another database client
+  //The User must be an entity class annotation with @Table, @TableId, @TableColumn,Or rewrite a SQLStatement that implements the table name, ID, and returns the column to pass to CommonSQL
+  //JDBCPool can be another database client
   //Override other methods
 }  
 ```
@@ -134,7 +136,7 @@ public class UserSQL extends CommonSQL<User,JDBCClient> {//(1)
 ``` java
 public static void main(String[] args) {
   // Other necessary
-  UserSQL userSQL = new UserSQL(SQLExecute.createJDBC(jdbcClient));
+  UserSQL userSQL = new UserSQL(SQLExecute.createJDBC(JDBCPool));
   // Query Example
   // Create SqlAssist
   SqlAssist assist = new SqlAssist();

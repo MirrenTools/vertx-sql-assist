@@ -157,7 +157,7 @@ public interface SQLCommand {
 	 * 插入一个对象,只插入对象中值不为null的属性,并返回自增的结果
 	 * @param <T>
 	 * @param obj 插入的对象
-	 * @param property 要获取的property,JDBCPool可以使用
+	 * @param property 返回结果的PropertyKind名称,比如JDBCPool.GENERATED_KEYS或MySQLClient.LAST_INSERTED_ID
 	 * @param handler
 	 */
 	<T,R> void insertNonEmptyGeneratedKeys(T obj, PropertyKind<R> property, Handler<AsyncResult<R>> handler);

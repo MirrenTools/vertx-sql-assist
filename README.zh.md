@@ -22,6 +22,7 @@ vertx-sql-assist是 [Vert.x](https://vertx.io/) 的SQL操作帮助工具,它提�
 * **insertBatch** 批量添加插入对象
 * **insertAll** 插入一个对象包括属性值为null的值
 * **insertNonEmpty** 插入一个对象,只插入对象中值不为null的属性
+* **insertNonEmptyGeneratedKeys** 插入一个对象,只插入对象中值不为null的属性,并返回自增的id
 * **replace** 插入一个对象,如果该对象不存在就新建如果该对象已经存在就更新
 * **updateAllById** 更新一个对象中所有的属性包括null值,条件为对象中的主键值
 * **updateAllByAssist** 更新一个对象中所有的属性包括null值,条件为SqlAssist帮助类
@@ -32,10 +33,11 @@ vertx-sql-assist是 [Vert.x](https://vertx.io/) 的SQL操作帮助工具,它提�
 * **deleteById** 通过主键值删除对应的数据行
 * **deleteByAssist** 通过SqlAssist条件集删除对应的数据行
 * **queryAsObj** 执行查询结果为JsonObject
-* **queryAsListObj** 执行查询结果为JsonArray
-* **queryAsListArray** 执行查询结果为ResultSet
+* **queryAsList** 执行查询结果为List<JsonObject>
 * **update** 执行更新等操作得到受影响的行数
+* **updateResult** 执行更新等操作得到想要的结果,比如自增的id
 * **batch** 批量执行
+* **execute** 原生执行
 
 ## SqlAssist方法说明
 * **setOrders** 设置排序,通过SqlAssist.order(列名,排序方式)
@@ -119,13 +121,13 @@ public class User {
 2.创建SQL类并继承CommonSQL
 
 ``` java
-public class UserSQL extends CommonSQL<User,JDBCClient> {//(1)
-	public UserSQL(SQLExecute<JDBCClient> execute) {
+public class UserSQL extends CommonSQL<User,JDBCPool> {//(1)
+	public UserSQL(SQLExecute<JDBCPool> execute) {
 		super(execute);
 	}
   // (1)
-  // User 必须是有@Table, @TableId,@TableColumn注解的实体类
-  // JDBCClient 可以是别的数据库客户端
+  // User 必须是有@Table, @TableId,@TableColumn注解的实体类,或重写一个实现了表名,id,返回列的SQLStatement传给CommonSQL
+  // JDBCPool 可以是别的数据库客户端
   //实现其他的方法
 }  
 ```
@@ -134,7 +136,7 @@ public class UserSQL extends CommonSQL<User,JDBCClient> {//(1)
 ``` java
 public static void main(String[] args) {
   // 其他已省略的变量
-  UserSQL userSQL = new UserSQL(SQLExecute.createJDBC(jdbcClient));
+  UserSQL userSQL = new UserSQL(SQLExecute.createJDBC(JDBCPool));
   // 查询示例
   // 创建帮助类
   SqlAssist assist = new SqlAssist();

@@ -54,62 +54,74 @@ public class SQLCommandImpl implements SQLCommand {
 	@Override
 	public void selectAll(SqlAssist assist, Handler<AsyncResult<List<JsonObject>>> handler) {
 		SqlAndParams qp = statement.selectAllSQL(assist);
-		execute.queryAsList(qp, handler);
+		if (qp.succeeded()) {
+			execute.queryAsList(qp, handler);
+		} else {
+			handler.handle(Future.failedFuture(qp.getSql()));
+		}
 	}
 
 	@Override
 	public <S> void selectById(S primaryValue, String resultColumns, String tableAlias, String joinOrReference,
 			Handler<AsyncResult<JsonObject>> handler) {
 		SqlAndParams qp = statement.selectByIdSQL(primaryValue, resultColumns, tableAlias, joinOrReference);
-		execute.queryAsObj(qp, handler);
+		if (qp.succeeded()) {
+			execute.queryAsObj(qp, handler);
+		} else {
+			handler.handle(Future.failedFuture(qp.getSql()));
+		}
 	}
 
 	@Override
 	public <T> void selectSingleByObj(T obj, String resultColumns, String tableAlias, String joinOrReference,
 			Handler<AsyncResult<JsonObject>> handler) {
 		SqlAndParams qp = statement.selectByObjSQL(obj, resultColumns, tableAlias, joinOrReference, true);
-		execute.queryAsObj(qp, handler);
+		if (qp.succeeded()) {
+			execute.queryAsObj(qp, handler);
+		} else {
+			handler.handle(Future.failedFuture(qp.getSql()));
+		}
 	}
 
 	@Override
 	public <T> void selectByObj(T obj, String resultColumns, String tableAlias, String joinOrReference,
 			Handler<AsyncResult<List<JsonObject>>> handler) {
 		SqlAndParams qp = statement.selectByObjSQL(obj, resultColumns, tableAlias, joinOrReference, false);
-		execute.queryAsList(qp, handler);
+		if (qp.succeeded()) {
+			execute.queryAsList(qp, handler);
+		} else {
+			handler.handle(Future.failedFuture(qp.getSql()));
+		}
 	}
 
 	@Override
 	public <T> void insertAll(T obj, Handler<AsyncResult<Integer>> handler) {
 		SqlAndParams qp = statement.insertAllSQL(obj);
-		execute.update(qp, handler);
+		if (qp.succeeded()) {
+			execute.update(qp, handler);
+		} else {
+			handler.handle(Future.failedFuture(qp.getSql()));
+		}
 	}
 
 	@Override
 	public <T> void insertNonEmpty(T obj, Handler<AsyncResult<Integer>> handler) {
 		SqlAndParams qp = statement.insertNonEmptySQL(obj);
-		execute.update(qp, handler);
+		if (qp.succeeded()) {
+			execute.update(qp, handler);
+		} else {
+			handler.handle(Future.failedFuture(qp.getSql()));
+		}
 	}
 
 	@Override
 	public <T, R> void insertNonEmptyGeneratedKeys(T obj, PropertyKind<R> property, Handler<AsyncResult<R>> handler) {
 		SqlAndParams qp = statement.insertNonEmptySQL(obj);
-		execute.execute(qp, res -> {
-			if (res.succeeded()) {
-				RowSet<Row> rowSet = res.result();
-				if (rowSet == null) {
-					handler.handle(Future.succeededFuture());
-					return;
-				}
-				try {
-					R value = rowSet.property(property);
-					handler.handle(Future.succeededFuture(value));
-				} catch (Exception e) {
-					handler.handle(Future.failedFuture(e));
-				}
-			} else {
-				handler.handle(Future.failedFuture(res.cause()));
-			}
-		});
+		if (qp.succeeded()) {
+			execute.updateResult(qp, property, handler);
+		} else {
+			handler.handle(Future.failedFuture(qp.getSql()));
+		}
 	}
 
 	@Override
@@ -124,7 +136,7 @@ public class SQLCommandImpl implements SQLCommand {
 				}
 			});
 		} else {
-			handler.handle(Future.succeededFuture(0));
+			handler.handle(Future.failedFuture(qp.getSql()));
 		}
 	}
 
@@ -140,62 +152,98 @@ public class SQLCommandImpl implements SQLCommand {
 				}
 			});
 		} else {
-			handler.handle(Future.succeededFuture(0));
+			handler.handle(Future.failedFuture(qp.getSql()));
 		}
 	}
 
 	@Override
 	public <T> void replace(T obj, Handler<AsyncResult<Integer>> handler) {
 		SqlAndParams qp = statement.replaceSQL(obj);
-		execute.update(qp, handler);
+		if (qp.succeeded()) {
+			execute.update(qp, handler);
+		} else {
+			handler.handle(Future.failedFuture(qp.getSql()));
+		}
 	}
 
 	@Override
 	public <T> void updateAllById(T obj, Handler<AsyncResult<Integer>> handler) {
 		SqlAndParams qp = statement.updateAllByIdSQL(obj);
-		execute.update(qp, handler);
+		if (qp.succeeded()) {
+			execute.update(qp, handler);
+		} else {
+			handler.handle(Future.failedFuture(qp.getSql()));
+		}
 	}
 
 	@Override
 	public <T> void updateAllByAssist(T obj, SqlAssist assist, Handler<AsyncResult<Integer>> handler) {
 		SqlAndParams qp = statement.updateAllByAssistSQL(obj, assist);
-		execute.update(qp, handler);
+		if (qp.succeeded()) {
+			execute.update(qp, handler);
+		} else {
+			handler.handle(Future.failedFuture(qp.getSql()));
+		}
 	}
 
 	@Override
 	public <T> void updateNonEmptyById(T obj, Handler<AsyncResult<Integer>> handler) {
 		SqlAndParams qp = statement.updateNonEmptyByIdSQL(obj);
-		execute.update(qp, handler);
+		if (qp.succeeded()) {
+			execute.update(qp, handler);
+		} else {
+			handler.handle(Future.failedFuture(qp.getSql()));
+		}
 	}
 
 	@Override
 	public <T> void updateNonEmptyByAssist(T obj, SqlAssist assist, Handler<AsyncResult<Integer>> handler) {
 		SqlAndParams qp = statement.updateNonEmptyByAssistSQL(obj, assist);
-		execute.update(qp, handler);
+		if (qp.succeeded()) {
+			execute.update(qp, handler);
+		} else {
+			handler.handle(Future.failedFuture(qp.getSql()));
+		}
 	}
 
 	@Override
 	public <S> void updateSetNullById(S primaryValue, List<String> columns, Handler<AsyncResult<Integer>> handler) {
 		SqlAndParams qp = statement.updateSetNullByIdSQL(primaryValue, columns);
-		execute.update(qp, handler);
+		if (qp.succeeded()) {
+			execute.update(qp, handler);
+		} else {
+			handler.handle(Future.failedFuture(qp.getSql()));
+		}
 	}
 
 	@Override
 	public <T> void updateSetNullByAssist(SqlAssist assist, List<String> columns, Handler<AsyncResult<Integer>> handler) {
 		SqlAndParams qp = statement.updateSetNullByAssistSQL(assist, columns);
-		execute.update(qp, handler);
+		if (qp.succeeded()) {
+			execute.update(qp, handler);
+		} else {
+			handler.handle(Future.failedFuture(qp.getSql()));
+		}
 	}
 
 	@Override
 	public <S> void deleteById(S primaryValue, Handler<AsyncResult<Integer>> handler) {
 		SqlAndParams qp = statement.deleteByIdSQL(primaryValue);
-		execute.update(qp, handler);
+		if (qp.succeeded()) {
+			execute.update(qp, handler);
+		} else {
+			handler.handle(Future.failedFuture(qp.getSql()));
+		}
 	}
 
 	@Override
 	public void deleteByAssist(SqlAssist assist, Handler<AsyncResult<Integer>> handler) {
 		SqlAndParams qp = statement.deleteByAssistSQL(assist);
-		execute.update(qp, handler);
+		if (qp.succeeded()) {
+			execute.update(qp, handler);
+		} else {
+			handler.handle(Future.failedFuture(qp.getSql()));
+		}
 	}
 
 }
