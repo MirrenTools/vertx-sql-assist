@@ -139,8 +139,8 @@ public abstract class CommonSQL<E, C> implements CommonSQLClinet<C> {
 	}
 
 	@Override
-	public <T> void insertNonEmptyGeneratedKeys(T obj, Handler<AsyncResult<Object>> handler) {
-		command.insertNonEmptyGeneratedKeys(obj, handler);
+	public <T, R> void insertNonEmptyGeneratedKeys(T obj, PropertyKind<R> property, Handler<AsyncResult<R>> handler) {
+		command.insertNonEmptyGeneratedKeys(obj, property, handler);
 	}
 
 	@Override
@@ -197,5 +197,4 @@ public abstract class CommonSQL<E, C> implements CommonSQLClinet<C> {
 	public void deleteByAssist(SqlAssist assist, Handler<AsyncResult<Integer>> handler) {
 		command.deleteByAssist(assist, handler);
 	}
-
 }

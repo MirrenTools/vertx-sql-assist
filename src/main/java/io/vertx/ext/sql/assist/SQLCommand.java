@@ -6,6 +6,7 @@ import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.json.JsonObject;
+import io.vertx.sqlclient.PropertyKind;
 import io.vertx.sqlclient.Tuple;
 
 /**
@@ -153,13 +154,13 @@ public interface SQLCommand {
 	<T> void insertNonEmpty(T obj, Handler<AsyncResult<Integer>> handler);
 
 	/**
-	 * 插入一个对象,只插入对象中值不为null的属性
-	 * 
-	 * @param obj
-	 *          对象
+	 * 插入一个对象,只插入对象中值不为null的属性,并返回自增的结果
+	 * @param <T>
+	 * @param obj 插入的对象
+	 * @param property 要获取的property,JDBCPool可以使用
 	 * @param handler
 	 */
-	<T> void insertNonEmptyGeneratedKeys(T obj, Handler<AsyncResult<Object>> handler);
+	<T,R> void insertNonEmptyGeneratedKeys(T obj, PropertyKind<R> property, Handler<AsyncResult<R>> handler);
 
 	/**
 	 * 批量添加全部所有字段

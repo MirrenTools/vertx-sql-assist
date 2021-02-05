@@ -91,17 +91,20 @@ public class SQLCommandImpl implements SQLCommand {
 	}
 
 	@Override
-	public <T> void insertNonEmptyGeneratedKeys(T obj, Handler<AsyncResult<Object>> handler) {
+	public <T, R> void insertNonEmptyGeneratedKeys(T obj, PropertyKind<R> property, Handler<AsyncResult<R>> handler) {
 		SqlAndParams qp = statement.insertNonEmptySQL(obj);
-//	TODO 做多数据库的尝试获取	mysql=last-inserted-id
-		execute.updateResult(qp,PropertyKind.create("generated-keys", Row.class), res -> {
+		execute.execute(qp, res -> {
 			if (res.succeeded()) {
-				Row row = res.result();
-				if (row != null) {
-					Object value = row.getValue(0);
-					handler.handle(Future.succeededFuture(value));
-				} else {
+				RowSet<Row> rowSet = res.result();
+				if (rowSet == null) {
 					handler.handle(Future.succeededFuture());
+					return;
+				}
+				try {
+					R value = rowSet.property(property);
+					handler.handle(Future.succeededFuture(value));
+				} catch (Exception e) {
+					handler.handle(Future.failedFuture(e));
 				}
 			} else {
 				handler.handle(Future.failedFuture(res.cause()));

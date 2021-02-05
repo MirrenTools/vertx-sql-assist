@@ -39,6 +39,11 @@ public class JdbcPoolTest extends TestSuite<Student, JDBCPool> {
 	}
 
 	@Override
+	public int insertNonEmptyGeneratedKeysResultPoolType() {
+		return 0;
+	}
+
+	@Override
 	public Student insertNonEmptyGeneratedKeysData() {
 		return new Student().setCid(1).setNickname("nickname").setPwd("pwd");
 	}
@@ -77,6 +82,5 @@ public class JdbcPoolTest extends TestSuite<Student, JDBCPool> {
 	public Student selectByObjData() {
 		return new Student().setCid(1);
 	}
-	
 
 }

@@ -608,28 +608,38 @@ public interface CommonSQLClinet<C> {
 	<T> void insertNonEmpty(T obj, Handler<AsyncResult<Integer>> handler);
 
 	/**
-	 * 插入一个对象,只插入对象中值不为null的属性<br>
-	 * 获取的PropertyKind使用的名称是generated-keys如果无效则重写该方法,后传入正确的,比如JDBCPool.GENERATED_KEYS
+	 * 插入一个对象,只插入对象中值不为null的属性,并返回自增的结果
 	 * 
 	 * @param obj
 	 *          对象
 	 * @return 返回操作结果
 	 */
-	default <T> Future<Object> insertNonEmptyGeneratedKeys(T obj) {
-		Promise<Object> promise = Promise.promise();
-		insertNonEmptyGeneratedKeys(obj, promise);
+	/**
+	 * 
+	 * @param <T>
+	 * @param obj
+	 *          对象
+	 * @param property
+	 *          获取属性的方法,比如JDBCPool使用传入JDBCPool.GENERATED_KEYS,MySQLPool使用PropertyKind.create("last-inserted-id",数据类型)
+	 * @return
+	 */
+	default <T, R> Future<R> insertNonEmptyGeneratedKeys(T obj, PropertyKind<R> property) {
+		Promise<R> promise = Promise.promise();
+		insertNonEmptyGeneratedKeys(obj, property, promise);
 		return promise.future();
 	}
 
 	/**
-	 * 插入一个对象,只插入对象中值不为null的属性
+	 * 插入一个对象,只插入对象中值不为null的属性,并返回自增的结果
 	 * 
 	 * @param obj
 	 *          对象
+	 * @param property
+	 *          获取属性的方法,比如JDBCPool使用传入JDBCPool.GENERATED_KEYS,MySQLPool使用PropertyKind.create("last-inserted-id",数据类型)
 	 * @param handler
 	 *          返回操作结果
 	 */
-	<T> void insertNonEmptyGeneratedKeys(T obj, Handler<AsyncResult<Object>> handler);
+	<T, R> void insertNonEmptyGeneratedKeys(T obj, PropertyKind<R> property, Handler<AsyncResult<R>> handler);
 
 	/**
 	 * 批量添加全部所有字段

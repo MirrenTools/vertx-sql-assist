@@ -17,8 +17,15 @@ public class MySQLPoolTest extends TestSuite<JsonObject, MySQLPool> {
 		config.put("url", "jdbc:mysql://10.0.0.79:3306/test_db?useUnicode=true&useSSL=false&serverTimezone=UTC")
 				.put("driver_class", "com.mysql.cj.jdbc.Driver").put("user", "root").put("password", "root");
 
-		MySQLConnectOptions connectOptions = new MySQLConnectOptions().setPort(3306).setHost("10.0.0.79").setDatabase("test_db").setUser("root")
-				.setPassword("root");
+		MySQLConnectOptions connectOptions = new MySQLConnectOptions()
+				.setPort(3306)
+				.setHost("10.0.0.79")
+				.setDatabase("test_db")
+				.setUser("root")
+				.setPassword("root")
+				.setUseAffectedRows(true)
+				;
+		
 		MySQLPool pool = MySQLPool.pool(vertx, connectOptions, new PoolOptions());
 		JsonObjectSQL sql = new JsonObjectSQL(SQLExecute.createMySQL(pool));
 		MySQLPoolTest test = new MySQLPoolTest(sql, config);
@@ -36,6 +43,11 @@ public class MySQLPoolTest extends TestSuite<JsonObject, MySQLPool> {
 	@Override
 	public JsonObject insertNonEmptyData() {
 		return new JsonObject().put("id", 2).put("cid", 1);
+	}
+
+	@Override
+	public int insertNonEmptyGeneratedKeysResultPoolType() {
+		return 1;
 	}
 
 	@Override

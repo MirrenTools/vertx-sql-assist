@@ -19,6 +19,8 @@ import io.vertx.core.Handler;
 import io.vertx.core.impl.logging.Logger;
 import io.vertx.core.impl.logging.LoggerFactory;
 import io.vertx.core.json.JsonObject;
+import io.vertx.jdbcclient.JDBCPool;
+import io.vertx.mysqlclient.MySQLClient;
 import io.vertx.sqlclient.Tuple;
 /**
  * 测试方法合集
@@ -195,27 +197,56 @@ public abstract class TestSuite<E, C> {
 
 	/** 测试新增不为空的数据,要求:id=null,cid=1,nickname=nickname,pwd=pwd */
 	public abstract E insertNonEmptyGeneratedKeysData();
+	/** 0=JDBCPool,1=MySQLPool */
+	public abstract int insertNonEmptyGeneratedKeysResultPoolType();
 	public void insertNonEmptyGeneratedKeys(Handler<AsyncResult<Integer>> handler) {
 		System.out.println("=================================================");
-		sql.insertNonEmptyGeneratedKeys(insertNonEmptyGeneratedKeysData()).onSuccess(res -> {
-			LOG.info("insertNonEmptyGeneratedKeys 执行结果:" + res);
-			int id = (res == null ? 0 : ((Number) res).intValue());
-			if (id >= 1) {
-				getByIdAndEquals(id, "nickname", "pwd", test -> {
-					if (Objects.equals(true, test.result())) {
-						LOG.info("insertNonEmptyGeneratedKeys 测试通过!");
-						insertBatch(handler);
-					} else {
-						LOG.info("insertNonEmptyGeneratedKeys 结果不匹配!");
-						failed("insertNonEmptyGeneratedKeys 结果不匹配!" + test.cause().getMessage(), handler);
-					}
-				});
-			} else {
-				LOG.info("insertNonEmptyGeneratedKeys 结果不匹配!");
-				String format = String.format("insertNonEmptyGeneratedKeys 结果不匹配!\n期望结果:[>=%d]\n实际结果:[%d]", 1, res);
-				failed(format, handler);
-			}
-		}).onFailure(err -> failed(err, handler));
+		int type = insertNonEmptyGeneratedKeysResultPoolType();
+		if (type == 0) {
+			sql.insertNonEmptyGeneratedKeys(insertNonEmptyGeneratedKeysData(), JDBCPool.GENERATED_KEYS).onSuccess(res -> {
+				LOG.info("insertNonEmptyGeneratedKeys JDBCPool 执行结果:" + res);
+				int id = (res == null ? 0 : res.getInteger(0));
+				if (id >= 1) {
+					getByIdAndEquals(id, "nickname", "pwd", test -> {
+						if (Objects.equals(true, test.result())) {
+							LOG.info("insertNonEmptyGeneratedKeys JDBCPool 测试通过!");
+							insertBatch(handler);
+						} else {
+							LOG.info("insertNonEmptyGeneratedKeys JDBCPool 结果不匹配!");
+							failed("insertNonEmptyGeneratedKeys JDBCPool 结果不匹配!" + test.cause().getMessage(), handler);
+						}
+					});
+				} else {
+					LOG.info("insertNonEmptyGeneratedKeys JDBCPool 结果不匹配!");
+					String format = String.format("insertNonEmptyGeneratedKeys JDBCPool 结果不匹配!\n期望结果:[>=%d]\n实际结果:[%d]", 1, res);
+					failed(format, handler);
+				}
+			}).onFailure(err -> failed(err, handler));
+		} else if (type == 1) {
+			sql.insertNonEmptyGeneratedKeys(insertNonEmptyGeneratedKeysData(), MySQLClient.LAST_INSERTED_ID).onSuccess(res -> {
+				LOG.info("insertNonEmptyGeneratedKeys MySQLPool 执行结果:" + res);
+				int id = (res == null ? 0 : ((Number) res).intValue());
+				if (id >= 1) {
+					getByIdAndEquals(id, "nickname", "pwd", test -> {
+						if (Objects.equals(true, test.result())) {
+							LOG.info("insertNonEmptyGeneratedKeys MySQLPool 测试通过!");
+							insertBatch(handler);
+						} else {
+							LOG.info("insertNonEmptyGeneratedKeys MySQLPool 结果不匹配!");
+							failed("insertNonEmptyGeneratedKeys MySQLPool 结果不匹配!" + test.cause().getMessage(), handler);
+						}
+					});
+				} else {
+					LOG.info("insertNonEmptyGeneratedKeys MySQLPool 结果不匹配!");
+					String format = String.format("insertNonEmptyGeneratedKeys MySQLPool 结果不匹配!\n期望结果:[>=%d]\n实际结果:[%d]", 1, res);
+					failed(format, handler);
+				}
+			}).onFailure(err -> failed(err, handler));
+		} else {
+			LOG.info("insertNonEmptyGeneratedKeys 不认识的Pool类型,无法获取结果,请搜索这句话并添加类型");
+			failed("insertNonEmptyGeneratedKeys 不认识的Pool类型,无法获取结果,请搜索这句话并添加类型", handler);
+		}
+
 	}
 
 	/** 测试批量新增所有,要求2个数据:id=null,cid=1,nickname=null,pwd=batch */
@@ -224,7 +255,7 @@ public abstract class TestSuite<E, C> {
 		System.out.println("=================================================");
 		sql.insertBatch(insertBatchData()).onSuccess(res -> {
 			LOG.info("insertBatch 执行结果:" + res);
-			if (res == 2) {
+			if (res >=1) {
 				SqlAssist assist = new SqlAssist();
 				assist.and(COLUMN_NICKNAME + " IS NULL").andEq(COLUMN_PWD, "batch");
 				getCountAndEquals(assist, 2, test -> {
@@ -238,7 +269,7 @@ public abstract class TestSuite<E, C> {
 				});
 			} else {
 				LOG.info("insertBatch 结果不匹配!");
-				String format = String.format("insertBatch 结果不匹配!\n期望结果:[%d]\n实际结果:[%d]", 2, res);
+				String format = String.format("insertBatch 结果不匹配!\n期望结果:[>=%d]\n实际结果:[%d]", 1, res);
 				failed(format, handler);
 			}
 		}).onFailure(err -> failed(err, handler));
@@ -248,7 +279,7 @@ public abstract class TestSuite<E, C> {
 		System.out.println("=================================================");
 		sql.insertBatch(Arrays.asList("cid", "pwd"), Arrays.asList(Tuple.of(1, "batch2"), Tuple.of(1, "batch2"))).onSuccess(res -> {
 			LOG.info("insertBatchCulumns 执行结果:" + res);
-			if (res == 2) {
+			if (res >=1) {
 				SqlAssist assist = new SqlAssist();
 				assist.and(COLUMN_NICKNAME + " IS NULL").andEq(COLUMN_PWD, "batch2");
 				getCountAndEquals(assist, 2, test -> {
@@ -262,7 +293,7 @@ public abstract class TestSuite<E, C> {
 				});
 			} else {
 				LOG.info("insertBatchCulumns 结果不匹配!");
-				String format = String.format("insertBatchCulumns 结果不匹配!\n期望结果:[%d]\n实际结果:[%d]", 2, res);
+				String format = String.format("insertBatchCulumns 结果不匹配!\n期望结果:[>=%d]\n实际结果:[%d]", 1, res);
 				failed(format, handler);
 			}
 		}).onFailure(err -> failed(err, handler));
@@ -274,7 +305,7 @@ public abstract class TestSuite<E, C> {
 		System.out.println("=================================================");
 		sql.replace(replaceData()).onSuccess(res -> {
 			LOG.info("replace 执行结果:" + res);
-			if (res == 1) {
+			if (res >= 1) {
 				getByIdAndEquals(1, "replace", "replace", test -> {
 					if (Objects.equals(true, test.result())) {
 						LOG.info("replace 测试通过!");
@@ -286,7 +317,7 @@ public abstract class TestSuite<E, C> {
 				});
 			} else {
 				LOG.info("replace 结果不匹配!");
-				String format = String.format("replace 结果不匹配!\n期望结果:[%d]\n实际结果:[%d]", 1, res);
+				String format = String.format("replace 结果不匹配!\n期望结果:[>=%d]\n实际结果:[%d]", 1, res);
 				failed(format, handler);
 			}
 		}).onFailure(err -> failed(err, handler));
